@@ -33,7 +33,7 @@ Ein Tool, das bei der Abschätzung von Arbeitszeiten für die Preiskalkulation i
 
 ### Welche externen Bibliotheken/Tools werden benutzt und wofür?
 (mindestens eine externe Bibliothek muss verwendet werden)
-- für grafische Oberfläche
+- Qt für grafische Oberfläche
 - für Datenbank-Anbindung
 
 ### Welche besonderen Anforderungen ergeben sich?
