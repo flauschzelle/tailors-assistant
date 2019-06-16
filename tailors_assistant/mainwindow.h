@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QStandardItemModel>
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,10 @@ private:
     Ui::MainWindow *ui;
 
     InputMode mode;
+
+    QStandardItemModel *test_model;
+
+
 };
 
 #endif // MAINWINDOW_H
