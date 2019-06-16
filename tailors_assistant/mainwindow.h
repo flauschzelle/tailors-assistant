@@ -4,11 +4,12 @@
 #include <QMainWindow>
 #include <QStandardItemModel>
 
+#include "general.h"
+#include "workpiece.h"
+
 namespace Ui {
 class MainWindow;
 }
-
-enum InputMode { record, offer };
 
 class MainWindow : public QMainWindow
 {
@@ -18,14 +19,23 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void setInputMode(InputMode mode);
+    void setInputMode(PieceStatusMode mode);
+
+public slots:
+    void newPiece();
+    void newOffer();
+
+    void openPieceSelector();
+    void openOfferSelector();
 
 private:
     Ui::MainWindow *ui;
 
-    InputMode mode;
+    PieceStatusMode mode;
 
     QStandardItemModel *test_model;
+
+    WorkPiece currentPiece;
 
 
 };

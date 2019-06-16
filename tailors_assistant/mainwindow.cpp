@@ -3,6 +3,8 @@
 #include <QStandardItemModel>
 #include <QStringList>
 
+#include "workpieceselector.h"
+
 // constructor
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,6 +25,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dataTableView->setModel(test_model);
 
     setInputMode(record); //default value for input mode
+
+    QObject::connect(ui->actionNeues_Werkst_ck, &QAction::triggered, this, &MainWindow::newPiece); //connect signal & slot for new piece menu item
+    QObject::connect(ui->actionNeues_Angebot, &QAction::triggered, this, &MainWindow::newOffer); //connect signal & slot for new offer menu item
+
+    QObject::connect(ui->actionWerkst_ck_ffnen, &QAction::triggered, this, &MainWindow::openPieceSelector); //connect signal & slot for open piece menu item
 }
 
 // destructor
@@ -33,7 +40,7 @@ MainWindow::~MainWindow()
 }
 
 // sets the mode for record input or offer calculation
-void MainWindow::setInputMode(InputMode mode)
+void MainWindow::setInputMode(PieceStatusMode mode)
 {
     this->mode = mode;
 
@@ -58,4 +65,29 @@ void MainWindow::setInputMode(InputMode mode)
         QStringList offer_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Filter", "Daten", "min", "med", "avg", "max", "man", "Kommentar"};
         test_model->setHorizontalHeaderLabels(offer_header_labels);
     }
+}
+
+//slot function to start recording a new piece:
+void MainWindow::newPiece()
+{
+    setInputMode(record);
+}
+
+//slot function to start creating a new offer:
+void MainWindow::newOffer()
+{
+    setInputMode(offer);
+}
+
+//slot function for a selection view to open an existing piece:
+void MainWindow::openPieceSelector()
+{
+    WorkPieceSelector selector;
+    selector.exec();
+}
+
+//slot function for a selection view to open an existing offer:
+void MainWindow::openOfferSelector()
+{
+    //
 }

@@ -25,10 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+    workpiece.cpp \
+    step.cpp \
+    workpieceselector.cpp \
+    piecetablemodel.cpp
 
 HEADERS += \
-        mainwindow.h
+        mainwindow.h \
+    workpiece.h \
+    step.h \
+    workpieceselector.h \
+    piecetablemodel.h \
+    general.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    workpieceselector.ui
