@@ -4,6 +4,7 @@
 #include <QDialog>
 #include <QStandardItemModel>
 #include <QVector>
+#include <QSortFilterProxyModel>
 
 #include "general.h"
 #include "workpiece.h"
@@ -33,8 +34,8 @@ private:
     QVector<WorkPiece*> records_list;
     QVector<WorkPiece*> offers_list;
 
-    //QStandardItemModel *selector_test_model;
     PieceTableModel *selection_model;
+    QSortFilterProxyModel *proxy_model;
 };
 
 #endif // WORKPIECESELECTOR_H

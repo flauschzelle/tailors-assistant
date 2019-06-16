@@ -62,7 +62,7 @@ QVariant PieceTableModel::data(const QModelIndex &index, int role) const
                 case 2:
                     return data_row->getCustomer();
                 case 3:
-                    return data_row->getDate().toString();
+                    return data_row->getDate();
                 case 4:
                     return data_row->getType();
                 case 5:
@@ -79,7 +79,7 @@ QVariant PieceTableModel::data(const QModelIndex &index, int role) const
                 case 1:
                     return data_row->getCustomer();
                 case 2:
-                    return data_row->getDate().toString();
+                    return data_row->getDate();
                 case 3:
                     return data_row->getType();
                 case 4:

@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionNeues_Angebot, &QAction::triggered, this, &MainWindow::newOffer); //connect signal & slot for new offer menu item
 
     QObject::connect(ui->actionWerkst_ck_ffnen, &QAction::triggered, this, &MainWindow::openPieceSelector); //connect signal & slot for open piece menu item
+    QObject::connect(ui->actionAngebot_ffnen, &QAction::triggered, this, &MainWindow::openOfferSelector); //connect signal & slot for open offer menu item
 }
 
 // destructor
@@ -83,11 +84,14 @@ void MainWindow::newOffer()
 void MainWindow::openPieceSelector()
 {
     WorkPieceSelector selector;
+    selector.setSelectionMode(record);
     selector.exec();
 }
 
 //slot function for a selection view to open an existing offer:
 void MainWindow::openOfferSelector()
 {
-    //
+    WorkPieceSelector selector;
+    selector.setSelectionMode(offer);
+    selector.exec();
 }

@@ -2,6 +2,7 @@
 #include "ui_workpieceselector.h"
 
 #include <QStandardItemModel>
+#include <QSortFilterProxyModel>
 
 WorkPieceSelector::WorkPieceSelector(QWidget *parent) :
     QDialog(parent),
@@ -9,55 +10,48 @@ WorkPieceSelector::WorkPieceSelector(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //simple model for testing the table view:
-    /*selector_test_model = new QStandardItemModel(24, 7);
-    for (int row = 0; row < 24; ++row) {
-        for (int column = 0; column < 7; ++column) {
-            QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
-            item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make the items not editable (for the table view)
-            selector_test_model->setItem(row, column, item);
-        }
-    }
-
-    ui->tableView->setModel(selector_test_model);
-    */
     setSelectionMode(record); //sets default selection mode
 }
 
 WorkPieceSelector::~WorkPieceSelector()
 {
     delete ui;
-    //delete selector_test_model;
     delete selection_model;
+    delete proxy_model;
 }
 
 // sets the mode for record or offer selection
 void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
 {
     selection_mode = mode;
+    selection_model = new PieceTableModel();
+
     if (mode == record)
     {
-        selection_model = new PieceTableModel();
         selection_model->setMode(record);
         generateRecordsList();
         selection_model->setDataSource(&records_list);
-        ui->tableView->setModel(selection_model);
         ui->label->setText("Werkstück zum Öffnen auswählen");
     }
     if (mode == offer)
     {
-        selection_model = new PieceTableModel();
         selection_model->setMode(offer);
         generateOffersList();
         selection_model->setDataSource(&offers_list);
-        ui->tableView->setModel(selection_model);
         ui->label->setText("Angebot zum Öffnen auswählen");
     }
+
+    proxy_model = new QSortFilterProxyModel();
+    proxy_model->setSourceModel(selection_model);
+    ui->tableView->setModel(proxy_model);
+    ui->tableView->resizeColumnsToContents();
 }
 
 //generates the list of workpieces, later to be used for getting it from the database
 void WorkPieceSelector::generateRecordsList()
 {
+    records_list.clear();
+
     WorkPiece *test_record1 = new WorkPiece();
     test_record1->setStatus(record);
     test_record1->setCustomer("test_customer1");
@@ -88,6 +82,8 @@ void WorkPieceSelector::generateRecordsList()
 //generates the list of offers, later to be used for getting it from the database
 void WorkPieceSelector::generateOffersList()
 {
+    offers_list.clear();
+
     WorkPiece *test_offer1 = new WorkPiece();
     test_offer1->setStatus(offer);
     test_offer1->setCustomer("test_customer1");
