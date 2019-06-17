@@ -6,6 +6,7 @@
 
 #include "general.h"
 #include "workpiece.h"
+#include "workpieceselector.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +29,9 @@ public slots:
     void openPieceSelector();
     void openOfferSelector();
 
+    void getWorkpieceFromSelector();
+    void cleanUpSelector();
+
 private:
     Ui::MainWindow *ui;
 
@@ -35,9 +39,9 @@ private:
 
     QStandardItemModel *test_model;
 
-    WorkPiece currentPiece;
+    WorkPiece *currentPiece;
 
-
+    WorkPieceSelector *selector;
 };
 
 #endif // MAINWINDOW_H

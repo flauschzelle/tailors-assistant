@@ -3,6 +3,7 @@
 
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
+#include <stdio.h>
 
 WorkPieceSelector::WorkPieceSelector(QWidget *parent) :
     QDialog(parent),
@@ -11,12 +12,14 @@ WorkPieceSelector::WorkPieceSelector(QWidget *parent) :
     ui->setupUi(this);
 
     setSelectionMode(record); //sets default selection mode
+
+    selectedRowNr = 0; //default value
 }
 
 WorkPieceSelector::~WorkPieceSelector()
 {
     delete ui;
-    delete selection_model;
+    delete piece_selection_model;
     delete proxy_model;
 }
 
@@ -24,27 +27,30 @@ WorkPieceSelector::~WorkPieceSelector()
 void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
 {
     selection_mode = mode;
-    selection_model = new PieceTableModel();
+    piece_selection_model = new PieceTableModel();
 
     if (mode == record)
     {
-        selection_model->setMode(record);
+        piece_selection_model->setMode(record);
         generateRecordsList();
-        selection_model->setDataSource(&records_list);
+        piece_selection_model->setDataSource(&records_list);
         ui->label->setText("Werkstück zum Öffnen auswählen");
     }
     if (mode == offer)
     {
-        selection_model->setMode(offer);
+        piece_selection_model->setMode(offer);
         generateOffersList();
-        selection_model->setDataSource(&offers_list);
+        piece_selection_model->setDataSource(&offers_list);
         ui->label->setText("Angebot zum Öffnen auswählen");
     }
 
     proxy_model = new QSortFilterProxyModel();
-    proxy_model->setSourceModel(selection_model);
+    proxy_model->setSourceModel(piece_selection_model);
     ui->tableView->setModel(proxy_model);
     ui->tableView->resizeColumnsToContents();
+
+    //connect the selection changed signal to the slot that registers the selected row:
+    QObject::connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &WorkPieceSelector::rowSelectionChanged);
 }
 
 //generates the list of workpieces, later to be used for getting it from the database
@@ -109,4 +115,31 @@ void WorkPieceSelector::generateOffersList()
     offers_list.append(test_offer1);
     offers_list.append(test_offer2);
     offers_list.append(test_offer3);
+}
+
+//slot that is called when a row is selected:
+void WorkPieceSelector::rowSelectionChanged(const QItemSelection &selected, const QItemSelection &)
+{
+    if (selected.indexes().length() != 0) //if anything is selected
+    {
+        selectedRowNr = (proxy_model->mapSelectionToSource(selected)).indexes().at(0).row();
+
+        //this was used for debug purposes:
+        //printf("proxy row nr: %d \n", selected.indexes().at(0).row());
+        //printf("source row nr: %d \n", selectedRowNr);
+    }
+}
+
+//returns the piece that was selected in the dialog
+WorkPiece* WorkPieceSelector::getSelectedPiece()
+{
+    if (selection_mode == record)
+    {
+        return records_list.at(selectedRowNr);
+    }
+    else if (selection_mode == offer)
+    {
+        return offers_list.at(selectedRowNr);
+    }
+    return NULL;
 }

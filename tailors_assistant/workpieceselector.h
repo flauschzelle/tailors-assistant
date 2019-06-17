@@ -26,6 +26,12 @@ public:
     void generateRecordsList();
     void generateOffersList();
 
+    WorkPiece* getSelectedPiece();
+
+public slots:
+
+    void rowSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+
 private:
     Ui::WorkPieceSelector *ui;
 
@@ -34,8 +40,9 @@ private:
     QVector<WorkPiece*> records_list;
     QVector<WorkPiece*> offers_list;
 
-    PieceTableModel *selection_model;
+    PieceTableModel *piece_selection_model;
     QSortFilterProxyModel *proxy_model;
+    int selectedRowNr;
 };
 
 #endif // WORKPIECESELECTOR_H
