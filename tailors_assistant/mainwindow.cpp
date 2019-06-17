@@ -6,6 +6,8 @@
 #include <QStringList>
 #include <QFile>
 
+MainWindow* MainWindow::instance = NULL; //initialize the static member variable
+
 // constructor
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //config & files stuff:---------------------------------
 
     QString homepath = QDir::homePath(); //get path to the user's home dir
-    databasePath = (homepath + "/.tailors_assistant/testdb"); //default path to the database file
+    databasePath = (homepath + "/.tailors_assistant/testdb.db"); //default path to the database file
 
     const QString filename = (homepath + "/.tailors_assistant/config.txt");
     configfile.setFileName(filename); //initialize file name
@@ -63,6 +65,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //database stuff:---------------------------------------
 
+    QFileInfo fi(databasePath);
+    databaseDirPath = fi.absolutePath();
+
     db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(databasePath);
         bool ok = db.open();
@@ -89,17 +94,23 @@ MainWindow::MainWindow(QWidget *parent) :
     setInputMode(record); //default value for input mode
     currentPiece = NULL; //default value for piece pointer
     selector = NULL; //default value for selector pointer
+    db_settings_dialog = NULL; //default value for db settings dialog pointer
 
     QObject::connect(ui->actionNeues_Werkst_ck, &QAction::triggered, this, &MainWindow::newPiece); //connect signal & slot for new piece menu item
     QObject::connect(ui->actionNeues_Angebot, &QAction::triggered, this, &MainWindow::newOffer); //connect signal & slot for new offer menu item
 
     QObject::connect(ui->actionWerkst_ck_ffnen, &QAction::triggered, this, &MainWindow::openPieceSelector); //connect signal & slot for open piece menu item
     QObject::connect(ui->actionAngebot_ffnen, &QAction::triggered, this, &MainWindow::openOfferSelector); //connect signal & slot for open offer menu item
+
+    QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings); //connect signal from menu to database settigns dialog
+
+    MainWindow::instance = this;
 }
 
 // destructor
 MainWindow::~MainWindow()
 {
+    db.close();
     delete ui;
     delete test_model;
 }
@@ -130,6 +141,12 @@ void MainWindow::setInputMode(PieceStatusMode mode)
         QStringList offer_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Filter", "Daten", "min", "med", "avg", "max", "man", "Kommentar"};
         test_model->setHorizontalHeaderLabels(offer_header_labels);
     }
+}
+
+//returns the currently used database path
+QString MainWindow::getDatabasePath()
+{
+    return databasePath;
 }
 
 //slot function to start recording a new piece:
@@ -187,4 +204,62 @@ void MainWindow::cleanUpSelector()
 {
     delete selector;
     selector = NULL; //re-initialize selector to null pointer
+}
+
+//slot function for opening the database settings dialog
+void MainWindow::openDatabaseSettings()
+{
+    db_settings_dialog = new DatabaseSettings();
+    db_settings_dialog->open();
+    QObject::connect(db_settings_dialog, &QDialog::accepted, this, &MainWindow::getDBPathFromSelector);
+    QObject::connect(db_settings_dialog, &QDialog::rejected, this, &MainWindow::cleanUpDBSelector);
+}
+
+//slot function for changing the path to the database
+void MainWindow::changeDatabasePath(QString path)
+{
+    db.close(); //close existing db connection
+
+    databasePath = path; //set the datbase path to the newly configured path
+
+    QFileInfo fi(databasePath);
+    databaseDirPath = fi.absolutePath(); //rewrite the path to the db dir
+
+    //reopen the database connection:
+    db.setDatabaseName(databasePath);
+    bool ok = db.open();
+    if (!ok) //check if connection was successful and exit if no
+    {
+        printf ("Error: unable to open database connection");
+        exit (EXIT_FAILURE);
+    }
+
+    //open the config file with write only access:
+    configfile.open(QIODevice::WriteOnly);
+
+    //write the new database path to the config file:
+    QTextStream out(&configfile);
+    out << databasePath;
+
+    configfile.close(); //close connection to the file
+}
+
+void MainWindow::getDBPathFromSelector()
+{
+    QString path = db_settings_dialog->getNewPath();
+    changeDatabasePath(path);
+
+    delete db_settings_dialog;
+    db_settings_dialog = NULL; //re-initialize selector to null pointer
+}
+
+void MainWindow::cleanUpDBSelector()
+{
+    delete db_settings_dialog;
+    db_settings_dialog = NULL; //re-initialize selector to null pointer
+}
+
+QString MainWindow::getDatabaseDirPath() const
+{
+    return databaseDirPath;
 }

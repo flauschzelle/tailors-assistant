@@ -7,6 +7,7 @@
 #include "general.h"
 #include "workpiece.h"
 #include "workpieceselector.h"
+#include "databasesettings.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,6 +23,12 @@ public:
 
     void setInputMode(PieceStatusMode mode);
 
+    QString getDatabasePath();
+
+    static MainWindow* instance;
+
+    QString getDatabaseDirPath() const;
+
 public slots:
     void newPiece();
     void newOffer();
@@ -32,7 +39,10 @@ public slots:
     void getWorkpieceFromSelector();
     void cleanUpSelector();
 
-    //void changeDatabasePath(QString path);
+    void openDatabaseSettings();
+    void changeDatabasePath(QString path);
+    void getDBPathFromSelector();
+    void cleanUpDBSelector();
 
 private:
     Ui::MainWindow *ui;
@@ -48,8 +58,11 @@ private:
     QSqlDatabase db;
 
     QString databasePath;
+    QString databaseDirPath;
 
     QFile configfile;
+
+    DatabaseSettings *db_settings_dialog;
 };
 
 #endif // MAINWINDOW_H
