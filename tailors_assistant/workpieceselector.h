@@ -23,10 +23,13 @@ public:
     ~WorkPieceSelector();
 
     void setSelectionMode(PieceStatusMode mode);
-    void generateRecordsList();
-    void generateOffersList();
+    static void generateRecordsList();
+    static void generateOffersList();
 
     WorkPiece* getSelectedPiece();
+
+    void generateWorkPieceLists();
+    static void writeTestDataToDatabase();
 
 public slots:
 
@@ -37,12 +40,17 @@ private:
 
     PieceStatusMode selection_mode;
 
-    QVector<WorkPiece*> records_list;
-    QVector<WorkPiece*> offers_list;
+    QVector<WorkPiece*> all_records;
+    QVector<WorkPiece*> all_offers;
 
     PieceTableModel *piece_selection_model;
     QSortFilterProxyModel *proxy_model;
     int selectedRowNr;
+
+
+    static QVector<WorkPiece*> test_records_list;
+    static QVector<WorkPiece*> test_offers_list;
+
 };
 
 #endif // WORKPIECESELECTOR_H

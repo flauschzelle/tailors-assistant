@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QString>
+#include <QSql>
+#include <QSqlQuery>
 
 class Step : public QObject
 {
@@ -11,6 +13,8 @@ public:
     explicit Step(QObject *parent = nullptr);
 
     static QString table_def;
+
+    static void setupTable();
 
 signals:
 

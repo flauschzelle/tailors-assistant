@@ -41,7 +41,9 @@ public:
     QString getName() const;
     void setName(const QString& value);
 
-    static QString table_def;
+    static void setupTable();
+
+    void savePieceToDatabase();
 
 signals:
 

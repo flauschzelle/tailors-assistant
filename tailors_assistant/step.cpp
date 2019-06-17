@@ -22,3 +22,13 @@ Step::Step(QObject *parent) : QObject(parent)
 {
 
 }
+
+void Step::setupTable()
+{
+    QSqlQuery query;
+
+    if (!query.exec(Step::table_def))
+    {
+        printf("error while setting up the steps table\n");
+    }
+}

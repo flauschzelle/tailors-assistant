@@ -272,14 +272,13 @@ QString MainWindow::getDatabaseDirPath() const
 
 void MainWindow::setupDatabase()
 {
-    QSqlQuery query;
+    WorkPiece::setupTable();
+    Step::setupTable();
 
-    if (!query.exec(WorkPiece::table_def))
+    QSqlQuery query;
+    query.exec("SELECT * FROM pieces");
+    if (!query.next())
     {
-        printf("error while setting up the pieces table\n");
-    }
-    if (!query.exec(Step::table_def))
-    {
-        printf("error while setting up the steps table\n");
+        WorkPieceSelector::writeTestDataToDatabase();
     }
 }
