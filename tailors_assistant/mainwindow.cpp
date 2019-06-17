@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "workpieceselector.h"
+#include "workpiece.h"
+#include "step.h"
 
 #include <QStandardItemModel>
 #include <QStringList>
@@ -76,6 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
             printf ("Error: unable to open database connection");
             exit (EXIT_FAILURE);
         }
+
+        setupDatabase(); //setup the newly connected database
 
     //end of database stuff---------------------------------
 
@@ -242,6 +246,8 @@ void MainWindow::changeDatabasePath(QString path)
     out << databasePath;
 
     configfile.close(); //close connection to the file
+
+    setupDatabase(); //setup the newly connected database
 }
 
 void MainWindow::getDBPathFromSelector()
@@ -262,4 +268,19 @@ void MainWindow::cleanUpDBSelector()
 QString MainWindow::getDatabaseDirPath() const
 {
     return databaseDirPath;
+}
+
+void MainWindow::setupDatabase()
+{
+    printf("setting up a new database\n");
+    QSqlQuery query;
+
+    if (!query.exec(WorkPiece::table_def))
+    {
+        printf("error while setting up the pieces table\n");
+    }
+    if (!query.exec(Step::table_def))
+    {
+        printf("error while setting up the steps table\n");
+    }
 }

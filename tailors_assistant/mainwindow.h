@@ -63,6 +63,7 @@ private:
     QFile configfile;
 
     DatabaseSettings *db_settings_dialog;
+    void setupDatabase();
 };
 
 #endif // MAINWINDOW_H

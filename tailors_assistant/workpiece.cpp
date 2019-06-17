@@ -1,5 +1,17 @@
 #include "workpiece.h"
 
+//initialize the static member:
+QString WorkPiece::table_def = "CREATE TABLE IF NOT EXISTS pieces "
+                               "(id INTEGER PRIMARY KEY NOT NULL, "
+                               "status TEXT, "
+                               "name TEXT, "
+                               "customer TEXT, "
+                               "type TEXT, "
+                               "date TEXT, "
+                               "comment TEXT, "
+                               "picture BLOB "
+                               ")";
+
 WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
 {
 
