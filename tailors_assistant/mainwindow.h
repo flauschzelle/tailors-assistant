@@ -32,6 +32,8 @@ public slots:
     void getWorkpieceFromSelector();
     void cleanUpSelector();
 
+    //void changeDatabasePath(QString path);
+
 private:
     Ui::MainWindow *ui;
 
@@ -46,6 +48,8 @@ private:
     QSqlDatabase db;
 
     QString databasePath;
+
+    QFile configfile;
 };
 
 #endif // MAINWINDOW_H

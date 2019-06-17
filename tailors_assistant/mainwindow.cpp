@@ -1,9 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "workpieceselector.h"
+
 #include <QStandardItemModel>
 #include <QStringList>
-
-#include "workpieceselector.h"
+#include <QFile>
 
 // constructor
 MainWindow::MainWindow(QWidget *parent) :
@@ -12,19 +13,55 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    //simple model for testing the table view:
-    test_model = new QStandardItemModel(24, 7);
-    for (int row = 0; row < 24; ++row) {
-        for (int column = 0; column < 7; ++column) {
-            QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
-            item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make the items not editable (for the table view)
-            test_model->setItem(row, column, item);
+
+    //config & files stuff:---------------------------------
+
+    QString homepath = QDir::homePath(); //get path to the user's home dir
+    databasePath = (homepath + "/.tailors_assistant/testdb"); //default path to the database file
+
+    const QString filename = (homepath + "/.tailors_assistant/config.txt");
+    configfile.setFileName(filename); //initialize file name
+
+    if (!configfile.exists()) //if the config file does not exist yet
+    {
+        //create the directory where the file should be:
+        QString configpath(homepath + "/.tailors_assistant/");
+        QDir dir;
+
+        if (!dir.exists(configpath))
+        {
+            bool ok = dir.mkpath(configpath);
+            if (!ok)
+            {
+                printf ("Path to config directory could not be created.\n");
+                exit (EXIT_FAILURE);
+            }
         }
+
+        //open (create) the file with read/write access:
+        configfile.open(QIODevice::ReadWrite);
+
+        //write the default database path to the newly created config file:
+        QTextStream out(&configfile);
+        out << databasePath;
+
+        configfile.close(); //close connection to the file
+    }
+    else //if the file already exists:
+    {
+        //open in read only mode:
+        configfile.open(QIODevice::ReadOnly);
+
+        QTextStream in(&configfile);
+        QString line = in.readLine(); //read first line of the file
+        databasePath = line; //set the read line as database path
+
+        configfile.close(); //close the file connection
     }
 
-    //database stuff:
+    //end of files stuff------------------------------------
 
-    databasePath = "../testdb"; //default path to the database file
+    //database stuff:---------------------------------------
 
     db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(databasePath);
@@ -35,7 +72,17 @@ MainWindow::MainWindow(QWidget *parent) :
             exit (EXIT_FAILURE);
         }
 
-    //end of database stuff
+    //end of database stuff---------------------------------
+
+    //simple model for testing the table view:
+    test_model = new QStandardItemModel(24, 7);
+        for (int row = 0; row < 24; ++row) {
+            for (int column = 0; column < 7; ++column) {
+                QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make the items not editable (for the table view)
+                test_model->setItem(row, column, item);
+            }
+        }
 
     ui->dataTableView->setModel(test_model);
 

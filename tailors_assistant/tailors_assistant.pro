@@ -30,7 +30,8 @@ SOURCES += \
     workpiece.cpp \
     step.cpp \
     workpieceselector.cpp \
-    piecetablemodel.cpp
+    piecetablemodel.cpp \
+    databasesettings.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -38,8 +39,10 @@ HEADERS += \
     step.h \
     workpieceselector.h \
     piecetablemodel.h \
-    general.h
+    general.h \
+    databasesettings.h
 
 FORMS += \
         mainwindow.ui \
-    workpieceselector.ui
+    workpieceselector.ui \
+    databasesettings.ui
