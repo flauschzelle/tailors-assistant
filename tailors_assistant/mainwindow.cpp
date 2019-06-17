@@ -22,6 +22,21 @@ MainWindow::MainWindow(QWidget *parent) :
         }
     }
 
+    //database stuff:
+
+    databasePath = "../testdb"; //default path to the database file
+
+    db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName(databasePath);
+        bool ok = db.open();
+        if (!ok) //check if connection was successful and exit if no
+        {
+            printf ("Error: unable to open database connection");
+            exit (EXIT_FAILURE);
+        }
+
+    //end of database stuff
+
     ui->dataTableView->setModel(test_model);
 
     setInputMode(record); //default value for input mode

@@ -868,7 +868,7 @@
   </action>
   <action name="actionAngebot_aus_Werkst_ck">
    <property name="text">
-    <string>Angebot aus Werkstück</string>
+    <string>Angebot aus Werkstück importieren</string>
    </property>
   </action>
  </widget>

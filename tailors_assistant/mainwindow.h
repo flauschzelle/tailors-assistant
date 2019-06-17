@@ -42,6 +42,10 @@ private:
     WorkPiece *currentPiece;
 
     WorkPieceSelector *selector;
+
+    QSqlDatabase db;
+
+    QString databasePath;
 };
 
 #endif // MAINWINDOW_H

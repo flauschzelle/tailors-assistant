@@ -32,6 +32,7 @@ private:
     int med;
     int avg;
     int max;
+    int baseDatasets;
     //add more properties here if necessary
 };
 
