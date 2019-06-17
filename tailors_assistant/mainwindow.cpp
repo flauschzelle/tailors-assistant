@@ -156,13 +156,25 @@ QString MainWindow::getDatabasePath()
 //slot function to start recording a new piece:
 void MainWindow::newPiece()
 {
+    if (currentPiece != NULL)
+    {
+        currentPiece->savePieceToDatabase();
+    }
     setInputMode(record);
+    currentPiece = new WorkPiece();
+    currentPiece->setStatus(record);
 }
 
 //slot function to start creating a new offer:
 void MainWindow::newOffer()
 {
+    if (currentPiece != NULL)
+    {
+        currentPiece->savePieceToDatabase();
+    }
     setInputMode(offer);
+    currentPiece = new WorkPiece();
+    currentPiece->setStatus(offer);
 }
 
 //slot function for a selection view to open an existing piece:
@@ -272,9 +284,11 @@ QString MainWindow::getDatabaseDirPath() const
 
 void MainWindow::setupDatabase()
 {
+    //create the tables that are needed, if they don't exist:
     WorkPiece::setupTable();
     Step::setupTable();
 
+    //fill the new database with test data, if it is empty:
     QSqlQuery query;
     query.exec("SELECT * FROM pieces");
     if (!query.next())
@@ -282,3 +296,4 @@ void MainWindow::setupDatabase()
         WorkPieceSelector::writeTestDataToDatabase();
     }
 }
+

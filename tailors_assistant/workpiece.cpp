@@ -124,30 +124,23 @@ void WorkPiece::savePieceToDatabase()
     }
     else
     {
-        query.prepare("UPDATE pieces "
-                      "SET (status, name, customer, type, date, comment)"
-                      " = VALUES "
-                      "(:stat, :name, :cust, :type, :date, :comm) "
-                      "WHERE piece_id = :id");
-        query.bindValue(":id", id);
+        QString q = "UPDATE pieces "
+                    "SET (status, name, customer, type, date, comment)"
+                    " = "
+                    "(:stat, :name, :cust, :type, :date, :comm) "
+                    "WHERE piece_id=";
+        q.append(QString::number(id));
+        query.prepare(q);
+
     }
-
-
-    /*
-    //prepare insert&upsert statment:
-    query.prepare("INSERT INTO pieces (piece_id, status, name, customer, type, date, comment)"
-                  "VALUES (:id, :stat, :name, :cust, :type, :date, :comm)");
-
-                  " ON CONFLICT(piece_id) DO UPDATE SET status=excluded.status, name=excluded.name, "
-                  "customer=excluded.customer, type=excluded.type, date=excluded.date, "
-                  "comment=excluded.comment");
-    */
     query.bindValue(":stat", status);
     query.bindValue(":name", name);
     query.bindValue(":cust", customer);
     query.bindValue(":type", type);
     query.bindValue(":date", date.toString(Qt::ISODate));
     query.bindValue(":comm", comment);
+
+    printf("%s\n", query.lastQuery().toStdString().c_str());
 
     if (!query.exec())
     {
