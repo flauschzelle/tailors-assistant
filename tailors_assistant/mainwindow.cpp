@@ -272,7 +272,6 @@ QString MainWindow::getDatabaseDirPath() const
 
 void MainWindow::setupDatabase()
 {
-    printf("setting up a new database\n");
     QSqlQuery query;
 
     if (!query.exec(WorkPiece::table_def))

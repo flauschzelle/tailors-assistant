@@ -2,8 +2,8 @@
 
 //initialize the static member:
 QString Step::table_def = "CREATE TABLE IF NOT EXISTS steps "
-                          "(id INTEGER PRIMARY KEY NOT NULL, "
-                          "piece INTEGER NOT NULL REFERENCES pieces(id), "
+                          "(step_id INTEGER PRIMARY KEY NOT NULL, "
+                          "piece INTEGER NOT NULL REFERENCES pieces(piece_id), "
                           "name TEXT, "
                           "count INTEGER, "
                           "minutes_all INTEGER, "

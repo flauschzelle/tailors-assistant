@@ -837,6 +837,9 @@
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNeues_Werkst_ck">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Neues Werkstück</string>
    </property>
@@ -847,6 +850,9 @@
    </property>
   </action>
   <action name="actionNeues_Angebot">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Neues Angebot</string>
    </property>
@@ -862,11 +868,17 @@
    </property>
   </action>
   <action name="actionWerkst_ck_aus_Angebot">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Werkstück aus Angebot</string>
    </property>
   </action>
   <action name="actionAngebot_aus_Werkst_ck">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Angebot aus Werkstück importieren</string>
    </property>

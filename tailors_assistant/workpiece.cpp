@@ -2,7 +2,7 @@
 
 //initialize the static member:
 QString WorkPiece::table_def = "CREATE TABLE IF NOT EXISTS pieces "
-                               "(id INTEGER PRIMARY KEY NOT NULL, "
+                               "(piece_id INTEGER PRIMARY KEY NOT NULL, "
                                "status TEXT, "
                                "name TEXT, "
                                "customer TEXT, "
