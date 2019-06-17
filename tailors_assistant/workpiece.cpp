@@ -146,7 +146,7 @@ void WorkPiece::savePieceToDatabase()
     query.bindValue(":name", name);
     query.bindValue(":cust", customer);
     query.bindValue(":type", type);
-    query.bindValue(":date", date.toString());
+    query.bindValue(":date", date.toString(Qt::ISODate));
     query.bindValue(":comm", comment);
 
     if (!query.exec())
