@@ -184,7 +184,11 @@ void WorkPiece::saveStepsToDatabase()
     }
 
     //commit transaction to the db:
-    QSqlDatabase::database().commit();
+    if (!QSqlDatabase::database().commit())
+    {
+        printf("error while trying to save steps to the database");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void WorkPiece::savePieceToDatabase()
