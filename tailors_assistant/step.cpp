@@ -14,7 +14,6 @@ void Step::setupTable()
                         "count INTEGER, "
                         "ordinal_no INTEGER,"
                         "minutes_all INTEGER, "
-                        "seconds_per INTEGER, "
                         "seam_type TEXT, "
                         "material TEXT, "
                         "detail TEXT, "
@@ -60,16 +59,6 @@ int Step::getMinutesAll() const
 void Step::setMinutesAll(int value)
 {
     minutesAll = value;
-}
-
-int Step::getSecondsOne() const
-{
-    return secondsOne;
-}
-
-void Step::setSecondsOne(int value)
-{
-    secondsOne = value;
 }
 
 int Step::getCount() const

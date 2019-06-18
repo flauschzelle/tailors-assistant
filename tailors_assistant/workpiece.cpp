@@ -135,18 +135,56 @@ void WorkPiece::loadStepsFromDatabase()
         nextStep->setName(query.value(2).toString());
         nextStep->setCount(query.value(3).toInt());
         nextStep->setMinutesAll(query.value(5).toInt());
-        nextStep->setSecondsOne(query.value(6).toInt());
-        nextStep->setSeamType(query.value(7).toString());
-        nextStep->setMaterial(query.value(8).toString());
-        nextStep->setDetail(query.value(9).toString());
-        nextStep->setFilterSeamType(query.value(10).toBool());
-        nextStep->setFilterMaterial(query.value(11).toBool());
-        nextStep->setFilterDetail(query.value(12).toBool());
-        nextStep->setFilterPieceType(query.value(13).toBool());
-        nextStep->setComment(query.value(14).toString());
+        nextStep->setSeamType(query.value(6).toString());
+        nextStep->setMaterial(query.value(7).toString());
+        nextStep->setDetail(query.value(8).toString());
+        nextStep->setFilterSeamType(query.value(9).toBool());
+        nextStep->setFilterMaterial(query.value(10).toBool());
+        nextStep->setFilterDetail(query.value(11).toBool());
+        nextStep->setFilterPieceType(query.value(12).toBool());
+        nextStep->setComment(query.value(13).toString());
 
         steps.append(nextStep);
     }
+}
+
+void WorkPiece::saveStepsToDatabase()
+{
+    //start transaction in the db:
+    QSqlDatabase::database().transaction();
+
+    //delete all steps of the current piece from the db:
+    QSqlQuery query;
+    query.prepare("DELETE FROM steps WHERE piece = (:id)");
+    query.bindValue(":id", id);
+    query.exec();
+
+    //save all the current steps:
+    for (int i=0; i<steps.length(); i++)
+    {
+        Step *s = steps.at(i);
+        query.prepare("INSERT INTO steps (step_id, piece, name, count, ordinal_no, minutes_all, seam_type, material, detail, filter_seam_type, filter_material, filter_detail, filter_piece_type, comment) "
+                      "VALUES (:id, :pid, :name, :ct, :on, :min, :st, :mat, :det, :fst, :fmat; fdet:, :fpt, :comm)");
+        query.bindValue(":id", s->getId());
+        query.bindValue(":pid", id);
+        query.bindValue(":name", s->getName());
+        query.bindValue(":ct", s->getCount());
+        query.bindValue(":on", i);
+        query.bindValue(":min", s->getMinutesAll());
+        query.bindValue(":st", s->getSeamType());
+        query.bindValue(":mat", s->getMaterial());
+        query.bindValue(":det", s->getDetail());
+        query.bindValue(":fst", s->getFilterSeamType());
+        query.bindValue(":fmat", s->getFilterMaterial());
+        query.bindValue(":fdet", s->getFilterDetail());
+        query.bindValue(":fpt", s->getFilterPieceType());
+        query.bindValue(":comm", s->getComment());
+
+        query.exec();
+    }
+
+    //commit transaction to the db:
+    QSqlDatabase::database().commit();
 }
 
 void WorkPiece::savePieceToDatabase()
@@ -155,7 +193,7 @@ void WorkPiece::savePieceToDatabase()
 
     if (id == 0)
     {
-        query.prepare("INSERT INTO pieces (status, name, customer, type, date, comment)"
+        query.prepare("INSERT INTO pieces (status, name, customer, type, date, comment) "
                       "VALUES (:stat, :name, :cust, :type, :date, :comm)");
     }
     else
@@ -189,6 +227,7 @@ void WorkPiece::savePieceToDatabase()
         printf("row nr. %d inserted\n", id);
     }
 
+    saveStepsToDatabase();
 }
 
 bool WorkPiece::isEmpty()

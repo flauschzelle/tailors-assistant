@@ -33,6 +33,8 @@ public:
     bool isEmpty();
 
     void loadStepsFromDatabase();
+    void saveStepsToDatabase();
+
 signals:
 
 public slots:

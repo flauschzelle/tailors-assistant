@@ -23,9 +23,6 @@ public:
     int getMinutesAll() const;
     void setMinutesAll(int value);
 
-    int getSecondsOne() const;
-    void setSecondsOne(int value);
-
     int getCount() const;
     void setCount(int value);
 
@@ -61,7 +58,6 @@ private:
     int id;
     QString name;
     int minutesAll;
-    int secondsOne;
     int count;
     QString seamType;
     QString material;
