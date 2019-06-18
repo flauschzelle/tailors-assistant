@@ -3,6 +3,7 @@
 WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
 {
     id = 0; //initialize id with default value
+    //name = ""; //initialize name with empty string
 }
 
 int WorkPiece::getId() const
@@ -140,8 +141,6 @@ void WorkPiece::savePieceToDatabase()
     query.bindValue(":date", date.toString(Qt::ISODate));
     query.bindValue(":comm", comment);
 
-    printf("%s\n", query.lastQuery().toStdString().c_str());
-
     if (!query.exec())
     {
         printf("error while saving piece to database\n");
@@ -155,5 +154,10 @@ void WorkPiece::savePieceToDatabase()
         printf("row nr. %d inserted\n", id);
     }
 
+}
+
+bool WorkPiece::isEmpty()
+{
+    return((id == 0)&&(name.length() == 0));
 }
 

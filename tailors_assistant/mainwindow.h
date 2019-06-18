@@ -29,6 +29,8 @@ public:
 
     QString getDatabaseDirPath() const;
 
+    void setCurrentPiece(WorkPiece * piece);
+
 public slots:
     void newPiece();
     void newOffer();
@@ -43,6 +45,8 @@ public slots:
     void changeDatabasePath(QString path);
     void getDBPathFromSelector();
     void cleanUpDBSelector();
+    void tryToDeleteCurrentPiece();
+    void deleteCurrentPiece();
 
 private:
     Ui::MainWindow *ui;
@@ -64,6 +68,12 @@ private:
 
     DatabaseSettings *db_settings_dialog;
     void setupDatabase();
+
+    void fillPieceDataComboBoxes();
+    void fillPieceDataUIElements(WorkPiece * piece);
+    void connectPieceDataInputs();
+
+
 };
 
 #endif // MAINWINDOW_H

@@ -56,7 +56,7 @@ QVariant PieceTableModel::data(const QModelIndex &index, int role) const
         {
             switch (index.column()) {
                 case 0:
-                    return ("Bild");
+                    return ("(kein)");
                 case 1:
                     return data_row->getName();
                 case 2:

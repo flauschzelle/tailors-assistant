@@ -3,6 +3,7 @@
 #include "workpieceselector.h"
 #include "workpiece.h"
 #include "step.h"
+#include "deletepiecedialog.h"
 
 #include <QStandardItemModel>
 #include <QStringList>
@@ -71,17 +72,19 @@ MainWindow::MainWindow(QWidget *parent) :
     databaseDirPath = fi.absolutePath();
 
     db = QSqlDatabase::addDatabase("QSQLITE");
-        db.setDatabaseName(databasePath);
-        bool ok = db.open();
-        if (!ok) //check if connection was successful and exit if no
-        {
-            printf ("Error: unable to open database connection");
-            exit (EXIT_FAILURE);
-        }
+    db.setDatabaseName(databasePath);
+    bool ok = db.open();
+    if (!ok) //check if connection was successful and exit if no
+    {
+        printf ("Error: unable to open database connection");
+        exit (EXIT_FAILURE);
+    }
 
-        setupDatabase(); //setup the newly connected database
+    setupDatabase(); //setup the newly connected database
 
     //end of database stuff---------------------------------
+
+    fillPieceDataComboBoxes();
 
     //simple model for testing the table view:
     test_model = new QStandardItemModel(24, 7);
@@ -95,6 +98,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->dataTableView->setModel(test_model);
 
+    ui->pieceDataBox->setEnabled(false);
+    ui->stepDataBox->setEnabled(false);
     setInputMode(record); //default value for input mode
     currentPiece = NULL; //default value for piece pointer
     selector = NULL; //default value for selector pointer
@@ -107,6 +112,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionAngebot_ffnen, &QAction::triggered, this, &MainWindow::openOfferSelector); //connect signal & slot for open offer menu item
 
     QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings); //connect signal from menu to database settigns dialog
+
+    QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
 
     MainWindow::instance = this;
 }
@@ -156,24 +163,24 @@ QString MainWindow::getDatabasePath()
 //slot function to start recording a new piece:
 void MainWindow::newPiece()
 {
-    if (currentPiece != NULL)
+    if (currentPiece != NULL && !currentPiece->isEmpty())
     {
         currentPiece->savePieceToDatabase();
     }
     setInputMode(record);
-    currentPiece = new WorkPiece();
+    setCurrentPiece(new WorkPiece());
     currentPiece->setStatus(record);
 }
 
 //slot function to start creating a new offer:
 void MainWindow::newOffer()
 {
-    if (currentPiece != NULL)
+    if (currentPiece != NULL && !currentPiece->isEmpty())
     {
         currentPiece->savePieceToDatabase();
     }
     setInputMode(offer);
-    currentPiece = new WorkPiece();
+    setCurrentPiece(new WorkPiece());
     currentPiece->setStatus(offer);
 }
 
@@ -209,7 +216,11 @@ void MainWindow::openOfferSelector()
 //slot function for applying the selection from the workpiece selector:
 void MainWindow::getWorkpieceFromSelector()
 {
-    currentPiece = selector->getSelectedPiece();
+    if (currentPiece !=NULL && !currentPiece->isEmpty())
+    {
+        currentPiece->savePieceToDatabase();
+    }
+    setCurrentPiece(selector->getSelectedPiece());
     delete selector;
     selector = NULL; //re-initialize selector to null pointer
     printf("current piece: %s\n", currentPiece->getName().toStdString().c_str());
@@ -277,9 +288,44 @@ void MainWindow::cleanUpDBSelector()
     db_settings_dialog = NULL; //re-initialize selector to null pointer
 }
 
+//public slot for the delete current piece button to use
+void MainWindow::tryToDeleteCurrentPiece()
+{
+    DeletePieceDialog *dpd = new DeletePieceDialog();
+    dpd->setMode(mode);
+    dpd->open();
+    QObject::connect(dpd, &QDialog::accepted, this, &MainWindow::deleteCurrentPiece);
+    QObject::connect(dpd, &QDialog::rejected, [=](){ delete dpd; });
+
+}
+
+//public slot to actually delete the current piece from the database
+void MainWindow::deleteCurrentPiece()
+{
+    if (currentPiece->getId() != 0)
+    {
+        QSqlQuery query;
+        query.prepare("DELETE FROM pieces WHERE piece_id=(:id)");
+        query.bindValue(":id", currentPiece->getId());
+        query.exec();
+    }
+    currentPiece = NULL;
+    ui->pieceDataBox->setEnabled(false);
+}
+
 QString MainWindow::getDatabaseDirPath() const
 {
     return databaseDirPath;
+}
+
+void MainWindow::setCurrentPiece(WorkPiece * piece)
+{
+    currentPiece = piece;
+    //activate ui elements:
+    ui->pieceDataBox->setEnabled(true);
+    fillPieceDataComboBoxes();
+    fillPieceDataUIElements(currentPiece);
+    connectPieceDataInputs();
 }
 
 void MainWindow::setupDatabase()
@@ -296,4 +342,54 @@ void MainWindow::setupDatabase()
         WorkPieceSelector::writeTestDataToDatabase();
     }
 }
+
+//fill the comboBoxes with data from the db:
+void MainWindow::fillPieceDataComboBoxes()
+{
+    ui->customerComboBox->clear();
+    QStringList customers;
+    QSqlQuery query;
+    query.exec("SELECT DISTINCT customer FROM pieces");
+    while (query.next())
+    {
+        customers.append(query.value(0).toString());
+    }
+    ui->customerComboBox->addItems(customers);
+
+
+    ui->pieceTypeComboBox->clear();
+    QStringList types;
+    query.exec("SELECT DISTINCT type FROM pieces");
+    while (query.next())
+    {
+        types.append(query.value(0).toString());
+    }
+    ui->pieceTypeComboBox->addItems(types);
+
+}
+
+void MainWindow::fillPieceDataUIElements(WorkPiece* piece)
+{
+    ui->customerComboBox->setCurrentText(piece->getCustomer());
+    ui->pieceNameLineEdit->setText(piece->getName());
+    ui->pieceTypeComboBox->setCurrentText(piece->getType());
+    ui->dateEdit->setDate(piece->getDate());
+    ui->pieceCommentLineEdit->setText(piece->getComment());
+}
+
+//connects ui elements to the current piece
+void MainWindow::connectPieceDataInputs()
+{
+    QObject::connect(ui->customerComboBox, QOverload<const QString &>::of(&QComboBox::activated),
+                     currentPiece, &WorkPiece::setCustomer);
+    QObject::connect(ui->customerComboBox, &QComboBox::editTextChanged, currentPiece, &WorkPiece::setCustomer);
+    QObject::connect(ui->pieceNameLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setName);
+    QObject::connect(ui->pieceTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated),
+                     currentPiece, &WorkPiece::setType);
+    QObject::connect(ui->pieceTypeComboBox, &QComboBox::editTextChanged, currentPiece, &WorkPiece::setType);
+    QObject::connect(ui->dateEdit, &QDateEdit::dateChanged, currentPiece, &WorkPiece::setDate);
+    QObject::connect(ui->pieceCommentLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setComment);
+}
+
+
 

@@ -19,35 +19,29 @@ public:
     void setId(int value);
 
     PieceStatusMode getStatus() const;
-    void setStatus(const PieceStatusMode& value);
-
-    QString getCustomer() const;
-    void setCustomer(const QString& value);
-
-    QString getType() const;
-    void setType(const QString& value);
-
-    QString getComment() const;
-    void setComment(const QString& value);
-
-    QDate getDate() const;
-    void setDate(const QDate& value);
-
-    QPixmap getPicture() const;
-    void setPicture(const QPixmap& value);
-
-    QVector<Step>& getSteps();
-
     QString getName() const;
-    void setName(const QString& value);
+    QString getCustomer() const;
+    QString getType() const;
+    QString getComment() const;
+    QDate getDate() const;
+    QPixmap getPicture() const;
+    QVector<Step>& getSteps();
 
     static void setupTable();
 
     void savePieceToDatabase();
+    bool isEmpty();
 
 signals:
 
 public slots:
+    void setStatus(const PieceStatusMode& value);
+    void setName(const QString& value);
+    void setCustomer(const QString& value);
+    void setType(const QString& value);
+    void setComment(const QString& value);
+    void setDate(const QDate& value);
+    void setPicture(const QPixmap& value);
 
 private:
     int id;
