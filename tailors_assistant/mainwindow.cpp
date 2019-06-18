@@ -18,71 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    setupConfigFile();
 
-    //config & files stuff:---------------------------------
+    initDatabase();
 
-    QString homepath = QDir::homePath(); //get path to the user's home dir
-    databasePath = (homepath + "/.tailors_assistant/testdb.db"); //default path to the database file
-
-    const QString filename = (homepath + "/.tailors_assistant/config.txt");
-    configfile.setFileName(filename); //initialize file name
-
-    if (!configfile.exists()) //if the config file does not exist yet
-    {
-        //create the directory where the file should be:
-        QString configpath(homepath + "/.tailors_assistant/");
-        QDir dir;
-
-        if (!dir.exists(configpath))
-        {
-            bool ok = dir.mkpath(configpath);
-            if (!ok)
-            {
-                printf ("Path to config directory could not be created.\n");
-                exit (EXIT_FAILURE);
-            }
-        }
-
-        //open (create) the file with read/write access:
-        configfile.open(QIODevice::ReadWrite);
-
-        //write the default database path to the newly created config file:
-        QTextStream out(&configfile);
-        out << databasePath;
-
-        configfile.close(); //close connection to the file
-    }
-    else //if the file already exists:
-    {
-        //open in read only mode:
-        configfile.open(QIODevice::ReadOnly);
-
-        QTextStream in(&configfile);
-        QString line = in.readLine(); //read first line of the file
-        databasePath = line; //set the read line as database path
-
-        configfile.close(); //close the file connection
-    }
-
-    //end of files stuff------------------------------------
-
-    //database stuff:---------------------------------------
-
-    QFileInfo fi(databasePath);
-    databaseDirPath = fi.absolutePath();
-
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(databasePath);
-    bool ok = db.open();
-    if (!ok) //check if connection was successful and exit if no
-    {
-        printf ("Error: unable to open database connection");
-        exit (EXIT_FAILURE);
-    }
-
-    setupDatabase(); //setup the newly connected database
-
-    //end of database stuff---------------------------------
+    setupDatabase();
 
     fillPieceDataComboBoxes();
 
@@ -233,6 +173,22 @@ void MainWindow::cleanUpSelector()
     selector = NULL; //re-initialize selector to null pointer
 }
 
+//to be called in the constructor
+void MainWindow::initDatabase()
+{
+    QFileInfo fi(databasePath);
+    databaseDirPath = fi.absolutePath();
+
+    db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName(databasePath);
+    bool ok = db.open();
+    if (!ok) //check if connection was successful and exit if no
+    {
+        printf ("Error: unable to open database connection");
+        exit (EXIT_FAILURE);
+    }
+}
+
 //slot function for opening the database settings dialog
 void MainWindow::openDatabaseSettings()
 {
@@ -288,6 +244,11 @@ void MainWindow::cleanUpDBSelector()
     db_settings_dialog = NULL; //re-initialize selector to null pointer
 }
 
+QString MainWindow::getDatabaseDirPath() const
+{
+    return databaseDirPath;
+}
+
 //public slot for the delete current piece button to use
 void MainWindow::tryToDeleteCurrentPiece()
 {
@@ -311,11 +272,6 @@ void MainWindow::deleteCurrentPiece()
     }
     currentPiece = NULL;
     ui->pieceDataBox->setEnabled(false);
-}
-
-QString MainWindow::getDatabaseDirPath() const
-{
-    return databaseDirPath;
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)
@@ -392,5 +348,49 @@ void MainWindow::connectPieceDataInputs()
     QObject::connect(ui->pieceCommentLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setComment);
 }
 
+void MainWindow::setupConfigFile()
+{
+    QString homepath = QDir::homePath(); //get path to the user's home dir
+    databasePath = (homepath + "/.tailors_assistant/testdb.db"); //default path to the database file
 
+    const QString filename = (homepath + "/.tailors_assistant/config.txt");
+    configfile.setFileName(filename); //initialize file name
+
+    if (!configfile.exists()) //if the config file does not exist yet
+    {
+        //create the directory where the file should be:
+        QString configpath(homepath + "/.tailors_assistant/");
+        QDir dir;
+
+        if (!dir.exists(configpath))
+        {
+            bool ok = dir.mkpath(configpath);
+            if (!ok)
+            {
+                printf ("Path to config directory could not be created.\n");
+                exit (EXIT_FAILURE);
+            }
+        }
+
+        //open (create) the file with read/write access:
+        configfile.open(QIODevice::ReadWrite);
+
+        //write the default database path to the newly created config file:
+        QTextStream out(&configfile);
+        out << databasePath;
+
+        configfile.close(); //close connection to the file
+    }
+    else //if the file already exists:
+    {
+        //open in read only mode:
+        configfile.open(QIODevice::ReadOnly);
+
+        QTextStream in(&configfile);
+        QString line = in.readLine(); //read first line of the file
+        databasePath = line; //set the read line as database path
+
+        configfile.close(); //close the file connection
+    }
+}
 

@@ -67,11 +67,15 @@ private:
     QFile configfile;
 
     DatabaseSettings *db_settings_dialog;
+
+    void setupConfigFile();
+    void initDatabase();
     void setupDatabase();
 
     void fillPieceDataComboBoxes();
     void fillPieceDataUIElements(WorkPiece * piece);
     void connectPieceDataInputs();
+
 
 
 };
