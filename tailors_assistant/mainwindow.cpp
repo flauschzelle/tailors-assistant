@@ -17,13 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     setupConfigFile();
-
     initDatabase();
-
     setupDatabase();
-
     fillPieceDataComboBoxes();
 
     //simple model for testing the table view:
@@ -54,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings); //connect signal from menu to database settigns dialog
 
     QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
+    QObject::connect(ui->editStepsPushButton, &QPushButton::clicked, this, &MainWindow::activateStepEdits);
 
     MainWindow::instance = this;
 }
@@ -272,6 +269,13 @@ void MainWindow::deleteCurrentPiece()
     }
     currentPiece = NULL;
     ui->pieceDataBox->setEnabled(false);
+    ui->stepDataBox->setEnabled(false);
+}
+
+void MainWindow::activateStepEdits()
+{
+    currentPiece->savePieceToDatabase();
+    ui->stepDataBox->setEnabled(true);
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)
@@ -280,6 +284,7 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
     setInputMode(currentPiece->getStatus());
     //activate ui elements:
     ui->pieceDataBox->setEnabled(true);
+    ui->stepDataBox->setEnabled(false);
     fillPieceDataComboBoxes();
     fillPieceDataUIElements(currentPiece);
     connectPieceDataInputs();

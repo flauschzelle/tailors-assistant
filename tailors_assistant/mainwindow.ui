@@ -298,6 +298,19 @@
               </widget>
              </item>
              <item>
+              <widget class="QPushButton" name="editStepsPushButton">
+               <property name="font">
+                <font>
+                 <weight>50</weight>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Speichern + Schritte bearbeiten</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
                 <enum>Qt::Horizontal</enum>
@@ -312,6 +325,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="exportPiecePushButton">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="font">
                 <font>
                  <weight>50</weight>

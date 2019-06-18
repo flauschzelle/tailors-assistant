@@ -48,6 +48,8 @@ public slots:
     void tryToDeleteCurrentPiece();
     void deleteCurrentPiece();
 
+    void activateStepEdits();
+
 private:
     Ui::MainWindow *ui;
 
