@@ -321,6 +321,7 @@ QString MainWindow::getDatabaseDirPath() const
 void MainWindow::setCurrentPiece(WorkPiece * piece)
 {
     currentPiece = piece;
+    setInputMode(currentPiece->getStatus());
     //activate ui elements:
     ui->pieceDataBox->setEnabled(true);
     fillPieceDataComboBoxes();
