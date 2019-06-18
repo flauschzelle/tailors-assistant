@@ -270,6 +270,8 @@ void MainWindow::deleteCurrentPiece()
     currentPiece = NULL;
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
+
+    //TODO:also delete steps!
 }
 
 void MainWindow::activateStepEdits()
@@ -277,6 +279,7 @@ void MainWindow::activateStepEdits()
     currentPiece->savePieceToDatabase();
     ui->stepDataBox->setEnabled(true);
     currentPiece->loadStepsFromDatabase();
+
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)
@@ -352,6 +355,57 @@ void MainWindow::connectPieceDataInputs()
     QObject::connect(ui->pieceTypeComboBox, &QComboBox::editTextChanged, currentPiece, &WorkPiece::setType);
     QObject::connect(ui->dateEdit, &QDateEdit::dateChanged, currentPiece, &WorkPiece::setDate);
     QObject::connect(ui->pieceCommentLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setComment);
+}
+
+//fills the drop down boxes with the values to choose from
+void MainWindow::fillStepDataComboBoxes()
+{
+    ui->stepNameComboBox->clear();
+    QStringList stepNames;
+    QSqlQuery query;
+    query.exec("SELECT DISTINCT name FROM steps");
+    while (query.next())
+    {
+        stepNames.append(query.value(0).toString());
+    }
+    ui->stepNameComboBox->addItems(stepNames);
+
+    ui->seamTypeComboBox->clear();
+    QStringList seamTypes;
+    query.exec("SELECT DISTINCT seam_type FROM steps");
+    while (query.next())
+    {
+        seamTypes.append(query.value(0).toString());
+    }
+    ui->seamTypeComboBox->addItems(seamTypes);
+
+    ui->materialComboBox->clear();
+    QStringList materials;
+    query.exec("SELECT DISTINCT material FROM steps");
+    while (query.next())
+    {
+        materials.append(query.value(0).toString());
+    }
+    ui->materialComboBox->addItems(materials);
+
+    ui->detailComboBox->clear();
+    QStringList details;
+    query.exec("SELECT DISTINCT detail FROM steps");
+    while (query.next())
+    {
+        details.append(query.value(0).toString());
+    }
+    ui->detailComboBox->addItems(details);
+}
+
+void MainWindow::fillStepDataUIElements(Step* step)
+{
+
+}
+
+void MainWindow::connectStepDataInputs()
+{
+
 }
 
 void MainWindow::setupConfigFile()

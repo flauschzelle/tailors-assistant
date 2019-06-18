@@ -78,6 +78,10 @@ private:
     void fillPieceDataUIElements(WorkPiece * piece);
     void connectPieceDataInputs();
 
+    void fillStepDataComboBoxes();
+    void fillStepDataUIElements(Step * step);
+    void connectStepDataInputs();
+
 
 
 };
