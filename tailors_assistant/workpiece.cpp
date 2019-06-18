@@ -163,9 +163,8 @@ void WorkPiece::saveStepsToDatabase()
     for (int i=0; i<steps.length(); i++)
     {
         Step *s = steps.at(i);
-        query.prepare("INSERT INTO steps (step_id, piece, name, count, ordinal_no, minutes_all, seam_type, material, detail, filter_seam_type, filter_material, filter_detail, filter_piece_type, comment) "
-                      "VALUES (:id, :pid, :name, :ct, :on, :min, :st, :mat, :det, :fst, :fmat; fdet:, :fpt, :comm)");
-        query.bindValue(":id", s->getId());
+        query.prepare("INSERT INTO steps (piece, name, count, ordinal_no, minutes_all, seam_type, material, detail, filter_seam_type, filter_material, filter_detail, filter_piece_type, comment) "
+                      "VALUES (:pid, :name, :ct, :on, :min, :st, :mat, :det, :fst, :fmat; fdet:, :fpt, :comm)");
         query.bindValue(":pid", id);
         query.bindValue(":name", s->getName());
         query.bindValue(":ct", s->getCount());
