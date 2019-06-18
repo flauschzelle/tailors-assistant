@@ -76,7 +76,7 @@ void WorkPiece::setPicture(const QPixmap& value)
     picture = value;
 }
 
-QVector<Step>& WorkPiece::getSteps()
+QVector<Step*> WorkPiece::getSteps()
 {
     return steps;
 }
@@ -112,7 +112,42 @@ void WorkPiece::setupTable()
         printf("error while setting up the pieces table\n");
     }
 }
+void WorkPiece::loadStepsFromDatabase()
+{
+    //make sure that this is not a new & unsaved piece
+    if (id == 0)
+    {
+        savePieceToDatabase();
+    }
+    //clear any pre-exisiting steps:
+    steps.clear();
 
+    //get data sets from db for all steps of this piece:
+    QSqlQuery query;
+    query.prepare("SELECT * FROM steps WHERE piece = (:id) ORDER BY ordinal_no ASC");
+    query.bindValue(":id", this->getId());
+    query.exec();
+    //go through the result set:
+    while (query.next())
+    {
+        Step *nextStep = new Step();
+        nextStep->setId(query.value(0).toInt());
+        nextStep->setName(query.value(2).toString());
+        nextStep->setCount(query.value(3).toInt());
+        nextStep->setMinutesAll(query.value(5).toInt());
+        nextStep->setSecondsOne(query.value(6).toInt());
+        nextStep->setSeamType(query.value(7).toString());
+        nextStep->setMaterial(query.value(8).toString());
+        nextStep->setDetail(query.value(9).toString());
+        nextStep->setFilterSeamType(query.value(10).toBool());
+        nextStep->setFilterMaterial(query.value(11).toBool());
+        nextStep->setFilterDetail(query.value(12).toBool());
+        nextStep->setFilterPieceType(query.value(13).toBool());
+        nextStep->setComment(query.value(14).toString());
+
+        steps.append(nextStep);
+    }
+}
 
 void WorkPiece::savePieceToDatabase()
 {

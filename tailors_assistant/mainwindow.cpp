@@ -276,6 +276,7 @@ void MainWindow::activateStepEdits()
 {
     currentPiece->savePieceToDatabase();
     ui->stepDataBox->setEnabled(true);
+    currentPiece->loadStepsFromDatabase();
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)

@@ -25,13 +25,14 @@ public:
     QString getComment() const;
     QDate getDate() const;
     QPixmap getPicture() const;
-    QVector<Step>& getSteps();
+    QVector<Step*> getSteps();
 
     static void setupTable();
 
     void savePieceToDatabase();
     bool isEmpty();
 
+    void loadStepsFromDatabase();
 signals:
 
 public slots:
@@ -53,7 +54,7 @@ private:
     QDate date;
     QPixmap picture;
 
-    QVector<Step> steps;
+    QVector<Step*> steps;
 };
 
 #endif // WORKPIECE_H
