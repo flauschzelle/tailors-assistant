@@ -80,7 +80,7 @@ private:
 
     void fillStepDataComboBoxes();
     void fillStepDataUIElements(Step * step);
-    void connectStepDataInputs();
+    void connectStepDataInputs(Step* step);
 
 
 

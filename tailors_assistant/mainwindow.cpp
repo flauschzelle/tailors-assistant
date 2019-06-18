@@ -398,14 +398,26 @@ void MainWindow::fillStepDataComboBoxes()
     ui->detailComboBox->addItems(details);
 }
 
+//fills in the step data from the given step
 void MainWindow::fillStepDataUIElements(Step* step)
 {
-
+    ui->stepNameComboBox->setCurrentText(step->getName());
+    ui->stepCountSpinBox->setValue(step->getCount());
+    ui->seamTypeComboBox->setCurrentText(step->getSeamType());
+    ui->materialComboBox->setCurrentText(step->getMaterial());
+    ui->detailComboBox->setCurrentText(step->getDetail());
+    ui->seamTypeCheckBox->setChecked(step->getFilterSeamType());
+    ui->materialCheckBox->setChecked(step->getFilterMaterial());
+    ui->detailCheckBox->setChecked(step->getFilterDetail());
+    ui->pieceTypeCheckBox->setChecked(step->getFilterPieceType());
+    ui->stepCommentLineEdit->setText(step->getComment());
+    ui->timeSpinBox->setValue(step->getMinutesAll());
 }
 
-void MainWindow::connectStepDataInputs()
+//connects the step data inputs to the given step
+void MainWindow::connectStepDataInputs(Step * step)
 {
-
+    //
 }
 
 void MainWindow::setupConfigFile()
