@@ -417,7 +417,27 @@ void MainWindow::fillStepDataUIElements(Step* step)
 //connects the step data inputs to the given step
 void MainWindow::connectStepDataInputs(Step * step)
 {
-    //
+    QObject::connect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setName);
+    QObject::connect(ui->stepNameComboBox, &QComboBox::editTextChanged, step, &Step::setName);
+
+    QObject::connect(ui->seamTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setSeamType);
+    QObject::connect(ui->seamTypeComboBox, &QComboBox::editTextChanged, step, &Step::setSeamType);
+
+    QObject::connect(ui->materialComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setMaterial);
+    QObject::connect(ui->materialComboBox, &QComboBox::editTextChanged, step, &Step::setMaterial);
+
+    QObject::connect(ui->detailComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setDetail);
+    QObject::connect(ui->detailComboBox, &QComboBox::editTextChanged, step, &Step::setDetail);
+
+    QObject::connect(ui->stepCountSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), step, &Step::setCount);
+    QObject::connect(ui->timeSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), step, &Step::setMinutesAll);
+
+    QObject::connect(ui->seamTypeCheckBox, &QCheckBox::toggled, step, &Step::setFilterSeamType);
+    QObject::connect(ui->materialCheckBox, &QCheckBox::toggled, step, &Step::setFilterMaterial);
+    QObject::connect(ui->detailCheckBox, &QCheckBox::toggled, step, &Step::setFilterDetail);
+    QObject::connect(ui->pieceTypeCheckBox, &QCheckBox::toggled, step, &Step::setFilterPieceType);
+
+    QObject::connect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
 }
 
 void MainWindow::setupConfigFile()

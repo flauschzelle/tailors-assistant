@@ -18,41 +18,31 @@ public:
     void setId(int value);
 
     QString getName() const;
-    void setName(const QString& value);
-
     int getMinutesAll() const;
-    void setMinutesAll(int value);
-
     int getCount() const;
-    void setCount(int value);
-
     QString getSeamType() const;
-    void setSeamType(const QString& value);
-
     QString getMaterial() const;
-    void setMaterial(const QString& value);
-
     QString getDetail() const;
-    void setDetail(const QString& value);
-
     QString getComment() const;
-    void setComment(const QString& value);
-
     bool getFilterSeamType() const;
-    void setFilterSeamType(bool value);
-
     bool getFilterMaterial() const;
-    void setFilterMaterial(bool value);
-
     bool getFilterDetail() const;
-    void setFilterDetail(bool value);
-
     bool getFilterPieceType() const;
-    void setFilterPieceType(bool value);
 
 signals:
 
 public slots:
+    void setName(const QString& value);
+    void setMinutesAll(int value);
+    void setCount(int value);
+    void setSeamType(const QString& value);
+    void setMaterial(const QString& value);
+    void setDetail(const QString& value);
+    void setComment(const QString& value);
+    void setFilterSeamType(bool value);
+    void setFilterMaterial(bool value);
+    void setFilterDetail(bool value);
+    void setFilterPieceType(bool value);
 
 private:
     int id;
