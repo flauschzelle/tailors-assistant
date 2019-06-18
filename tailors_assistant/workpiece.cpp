@@ -3,7 +3,7 @@
 WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
 {
     id = 0; //initialize id with default value
-    //name = ""; //initialize name with empty string
+    date = QDate(1970,1,1); //initialize date with default value
 }
 
 int WorkPiece::getId() const
