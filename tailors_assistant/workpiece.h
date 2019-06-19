@@ -26,6 +26,7 @@ public:
     QDate getDate() const;
     QPixmap getPicture() const;
     QVector<Step*> getSteps();
+    void addStep(Step * step);
 
     static void setupTable();
 

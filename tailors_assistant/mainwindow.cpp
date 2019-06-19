@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->stepDataBox->setEnabled(false);
     setInputMode(record); //default value for input mode
     currentPiece = NULL; //default value for piece pointer
+    stepIndex = 0; //default value for step index
     selector = NULL; //default value for selector pointer
     db_settings_dialog = NULL; //default value for db settings dialog pointer
 
@@ -276,15 +277,26 @@ void MainWindow::deleteCurrentPiece()
 
 void MainWindow::activateStepEdits()
 {
+//    currentPiece->loadStepsFromDatabase();
     currentPiece->savePieceToDatabase();
     ui->stepDataBox->setEnabled(true);
-    currentPiece->loadStepsFromDatabase();
 
+    fillStepDataComboBoxes();
+    //if the piece has no steps yet, set a new empty step as the first one:
+    if (currentPiece->getSteps().isEmpty())
+    {
+        Step * firstStep = new Step();
+        currentPiece->addStep(firstStep);
+    }
+    //connect everything to the first step:
+    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)
 {
     currentPiece = piece;
+    currentPiece->loadStepsFromDatabase();
     setInputMode(currentPiece->getStatus());
     //activate ui elements:
     ui->pieceDataBox->setEnabled(true);

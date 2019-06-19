@@ -59,6 +59,8 @@ private:
 
     WorkPiece *currentPiece;
 
+    int stepIndex;
+
     WorkPieceSelector *selector;
 
     QSqlDatabase db;

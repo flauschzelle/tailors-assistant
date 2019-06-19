@@ -81,6 +81,11 @@ QVector<Step*> WorkPiece::getSteps()
     return steps;
 }
 
+void WorkPiece::addStep(Step* step)
+{
+    steps.append(step);
+}
+
 QString WorkPiece::getName() const
 {
     return name;
@@ -126,7 +131,9 @@ void WorkPiece::loadStepsFromDatabase()
     QSqlQuery query;
     query.prepare("SELECT * FROM steps WHERE piece = (:id) ORDER BY ordinal_no ASC");
     query.bindValue(":id", this->getId());
-    query.exec();
+    bool z = query.exec();
+    printf("load step from db: %d\n", z);
+    if (z == false) printf("%s", query.lastError().text().toStdString().c_str());
     //go through the result set:
     while (query.next())
     {
@@ -157,14 +164,15 @@ void WorkPiece::saveStepsToDatabase()
     QSqlQuery query;
     query.prepare("DELETE FROM steps WHERE piece = (:id)");
     query.bindValue(":id", id);
-    query.exec();
+    bool x = query.exec();
+    printf("delete steps from db: %d\n",x);
 
     //save all the current steps:
     for (int i=0; i<steps.length(); i++)
     {
         Step *s = steps.at(i);
         query.prepare("INSERT INTO steps (piece, name, count, ordinal_no, minutes_all, seam_type, material, detail, filter_seam_type, filter_material, filter_detail, filter_piece_type, comment) "
-                      "VALUES (:pid, :name, :ct, :on, :min, :st, :mat, :det, :fst, :fmat; fdet:, :fpt, :comm)");
+                      "VALUES (:pid, :name, :ct, :on, :min, :st, :mat, :det, :fst, :fmat, :fdet, :fpt, :comm)");
         query.bindValue(":pid", id);
         query.bindValue(":name", s->getName());
         query.bindValue(":ct", s->getCount());
@@ -179,7 +187,9 @@ void WorkPiece::saveStepsToDatabase()
         query.bindValue(":fpt", s->getFilterPieceType());
         query.bindValue(":comm", s->getComment());
 
-        query.exec();
+        bool y = query.exec();
+        printf("add new step to db: %d\n",y);
+        if (y == false) printf("%s", query.lastError().text().toStdString().c_str());
     }
 
     //commit transaction to the db:

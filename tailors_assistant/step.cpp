@@ -2,7 +2,24 @@
 
 Step::Step(QObject *parent) : QObject(parent)
 {
-
+    //initialize members with default values:
+    id = 0;
+    name = "";
+    minutesAll = 0;
+    count = 0;
+    seamType = "";
+    material = "";
+    detail = "";
+    comment = "";
+    filterSeamType = false;
+    filterMaterial = false;
+    filterDetail = false;
+    filterPieceType = false;
+    min = 0;
+    med = 0;
+    avg = 0;
+    max = 0;
+    baseDatasets = 0;
 }
 
 void Step::setupTable()
@@ -12,7 +29,7 @@ void Step::setupTable()
                         "piece INTEGER NOT NULL REFERENCES pieces(piece_id), "
                         "name TEXT, "
                         "count INTEGER, "
-                        "ordinal_no INTEGER,"
+                        "ordinal_no INTEGER, "
                         "minutes_all INTEGER, "
                         "seam_type TEXT, "
                         "material TEXT, "
