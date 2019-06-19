@@ -26,13 +26,14 @@ MainWindow::MainWindow(QWidget *parent) :
     test_model = new QStandardItemModel(24, 7);
         for (int row = 0; row < 24; ++row) {
             for (int column = 0; column < 7; ++column) {
-                QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
+                QStandardItem *item = new QStandardItem(QString("row%0, col%1").arg(row).arg(column));
                 item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make the items not editable (for the table view)
                 test_model->setItem(row, column, item);
             }
         }
 
     ui->dataTableView->setModel(test_model);
+    ui->dataTableView->resizeColumnsToContents();
 
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
