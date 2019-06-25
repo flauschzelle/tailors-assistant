@@ -54,6 +54,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
     QObject::connect(ui->editStepsPushButton, &QPushButton::clicked, this, &MainWindow::activateStepEdits);
 
+    QObject::connect(ui->previousStepPushButton, &QPushButton::clicked, this, &MainWindow::prevStep);
+    QObject::connect(ui->nextStepPushButton, &QPushButton::clicked, this, &MainWindow::nextStep);
+
     MainWindow::instance = this;
 }
 
@@ -270,6 +273,7 @@ void MainWindow::deleteCurrentPiece()
         query.exec();
     }
     currentPiece = NULL;
+    ui->editStepsPushButton->setEnabled(true);
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
 
@@ -280,7 +284,9 @@ void MainWindow::activateStepEdits()
 {
 //    currentPiece->loadStepsFromDatabase();
     currentPiece->savePieceToDatabase();
+    ui->editStepsPushButton->setEnabled(false);
     ui->stepDataBox->setEnabled(true);
+    ui->previousStepPushButton->setEnabled(false);
 
     fillStepDataComboBoxes();
     //if the piece has no steps yet, set a new empty step as the first one:
@@ -294,12 +300,55 @@ void MainWindow::activateStepEdits()
     connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
+//this will be called when the "next step" button is pressed
+void MainWindow::nextStep()
+{
+    currentPiece->saveStepsToDatabase(); //save current input data
+    currentPiece->loadStepsFromDatabase(); //reload step data
+    stepIndex = stepIndex + 1;
+    //(re-)enable prev button:
+    ui->previousStepPushButton->setEnabled(true);
+    //if the next step does not exist yet, create it:
+    if (currentPiece->getSteps().length() <= stepIndex)
+    {
+        Step * newstep = new Step();
+        currentPiece->addStep(newstep);
+    }
+    //fill and connect inputs:
+    fillStepDataComboBoxes();
+    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+}
+
+//this will be called when the previous step button is pressed
+void MainWindow::prevStep()
+{
+    currentPiece->saveStepsToDatabase(); //save current input data
+    currentPiece->loadStepsFromDatabase(); //reload step data
+    //go to the previous step only if you're not already at the first one:
+    if (stepIndex > 0)
+    {
+        stepIndex = stepIndex - 1;
+    }
+    //disable prev button on the first step
+    if (stepIndex == 0)
+    {
+        ui->previousStepPushButton->setEnabled(false);
+    }
+    //fill and connect inputs:
+    fillStepDataComboBoxes();
+    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+}
+
 void MainWindow::setCurrentPiece(WorkPiece * piece)
 {
     currentPiece = piece;
     currentPiece->loadStepsFromDatabase();
+    stepIndex = 0; //reset step index to start at the first step
     setInputMode(currentPiece->getStatus());
     //activate ui elements:
+    ui->editStepsPushButton->setEnabled(true);
     ui->pieceDataBox->setEnabled(true);
     ui->stepDataBox->setEnabled(false);
     fillPieceDataComboBoxes();

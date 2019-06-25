@@ -50,6 +50,9 @@ public slots:
 
     void activateStepEdits();
 
+    void nextStep();
+    void prevStep();
+
 private:
     Ui::MainWindow *ui;
 
