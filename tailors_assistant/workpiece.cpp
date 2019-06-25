@@ -132,8 +132,14 @@ void WorkPiece::loadStepsFromDatabase()
     query.prepare("SELECT * FROM steps WHERE piece = (:id) ORDER BY ordinal_no ASC");
     query.bindValue(":id", this->getId());
     bool z = query.exec();
-    printf("load step from db: %d\n", z);
-    if (z == false) printf("%s", query.lastError().text().toStdString().c_str());
+    if (z)
+    {
+        printf("successfully loaded steps from db.\n");
+    }
+    else
+    {
+        printf("%s", query.lastError().text().toStdString().c_str());
+    }
     //go through the result set:
     while (query.next())
     {
@@ -152,6 +158,7 @@ void WorkPiece::loadStepsFromDatabase()
         nextStep->setComment(query.value(13).toString());
 
         steps.append(nextStep);
+        printf("loaded step: %s (%d)\n", nextStep->getName().toStdString().c_str(), nextStep->getId());
     }
 }
 
@@ -165,7 +172,14 @@ void WorkPiece::saveStepsToDatabase()
     query.prepare("DELETE FROM steps WHERE piece = (:id)");
     query.bindValue(":id", id);
     bool x = query.exec();
-    printf("delete steps from db: %d\n",x);
+    if (x)
+    {
+        printf("successfully deleted step(s) from db.\n");
+    }
+    else
+    {
+        printf("deleting step(s) from db failed.\n");
+    }
 
     //save all the current steps:
     for (int i=0; i<steps.length(); i++)
@@ -188,8 +202,14 @@ void WorkPiece::saveStepsToDatabase()
         query.bindValue(":comm", s->getComment());
 
         bool y = query.exec();
-        printf("add new step to db: %d\n",y);
-        if (y == false) printf("%s", query.lastError().text().toStdString().c_str());
+        if (y)
+        {
+            printf("added %d new step to db: %s (%d)\n", y, s->getName().toStdString().c_str(), s->getId());
+        }
+        else
+        {
+            printf("%s\n", query.lastError().text().toStdString().c_str());
+        }
     }
 
     //commit transaction to the db:
@@ -237,7 +257,7 @@ void WorkPiece::savePieceToDatabase()
     if (id == 0)
     {
         id = query.lastInsertId().toInt();
-        printf("row nr. %d inserted\n", id);
+        printf("Inserted new row into pieces table: %s (%d)\n", name.toStdString().c_str(), id);
     }
 
     saveStepsToDatabase();
