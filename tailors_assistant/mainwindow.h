@@ -56,6 +56,9 @@ public slots:
 
     void tryToDeleteCurrentStep();
     void deleteCurrentStep();
+
+    void stepSelected(const QItemSelection& selected, const QItemSelection &);
+
 private:
     Ui::MainWindow *ui;
 
@@ -91,8 +94,7 @@ private:
     void fillStepDataComboBoxes();
     void fillStepDataUIElements(Step * step);
     void connectStepDataInputs(Step* step);
-
-
+    void disconnectStepDataInputs(Step* step);
 
 };
 

@@ -794,12 +794,27 @@
            <property name="sizeAdjustPolicy">
             <enum>QAbstractScrollArea::AdjustToContents</enum>
            </property>
+           <property name="showDropIndicator" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="dragDropOverwriteMode">
+            <bool>false</bool>
+           </property>
+           <property name="selectionMode">
+            <enum>QAbstractItemView::SingleSelection</enum>
+           </property>
+           <property name="selectionBehavior">
+            <enum>QAbstractItemView::SelectRows</enum>
+           </property>
            <property name="showGrid">
             <bool>false</bool>
            </property>
            <property name="cornerButtonEnabled">
             <bool>false</bool>
            </property>
+           <attribute name="horizontalHeaderMinimumSectionSize">
+            <number>24</number>
+           </attribute>
            <attribute name="verticalHeaderVisible">
             <bool>false</bool>
            </attribute>
@@ -838,7 +853,7 @@
    </widget>
    <widget class="QMenu" name="menuModus">
     <property name="title">
-     <string>A&amp;ngebot kalkulieren</string>
+     <string>An&amp;gebot kalkulieren</string>
     </property>
     <addaction name="actionNeues_Angebot"/>
     <addaction name="actionAngebot_ffnen"/>
@@ -860,12 +875,12 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Neues Werkstück</string>
+    <string>&amp;Neues Werkstück</string>
    </property>
   </action>
   <action name="actionWerkst_ck_ffnen">
    <property name="text">
-    <string>Werkstück öffnen</string>
+    <string>&amp;Werkstück öffnen</string>
    </property>
   </action>
   <action name="actionNeues_Angebot">
@@ -873,17 +888,17 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Neues Angebot</string>
+    <string>&amp;Neues Angebot</string>
    </property>
   </action>
   <action name="actionAngebot_ffnen">
    <property name="text">
-    <string>Angebot öffnen</string>
+    <string>&amp;Angebot öffnen</string>
    </property>
   </action>
   <action name="actionDatenbank_Einstellungen">
    <property name="text">
-    <string>Datenbank-Einstellungen</string>
+    <string>&amp;Datenbank-Einstellungen</string>
    </property>
   </action>
   <action name="actionWerkst_ck_aus_Angebot">
@@ -891,7 +906,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Werkstück aus Angebot</string>
+    <string>W&amp;erkstück aus Angebot</string>
    </property>
   </action>
   <action name="actionAngebot_aus_Werkst_ck">
@@ -899,7 +914,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Angebot aus Werkstück importieren</string>
+    <string>Angebot aus &amp;Werkstück importieren</string>
    </property>
   </action>
  </widget>

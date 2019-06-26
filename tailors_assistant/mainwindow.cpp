@@ -300,6 +300,27 @@ void MainWindow::deleteCurrentStep()
     fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
 }
 
+//slot that is called when a step is selected from the table view
+void MainWindow::stepSelected(const QItemSelection &selected, const QItemSelection &)
+{
+    //disconnect inputs from previous step
+    disconnectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    //update StepIndex from selection
+    stepIndex = selected.indexes().at(0).row();
+    //dis-/enable prev button for first step/later stpes
+    if (stepIndex > 0)
+    {
+        ui->previousStepPushButton->setEnabled(true);
+    }
+    else
+    {
+        ui->previousStepPushButton->setEnabled(false);
+    }
+    //fill and connect inputs to newly selected step
+    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+}
+
 //public slot for the delete current piece button to use
 void MainWindow::tryToDeleteCurrentPiece()
 {
@@ -352,8 +373,10 @@ void MainWindow::activateStepEdits()
         currentPiece->addStep(firstStep);
     }
     //connect everything to the first step:
-    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
-    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    stepIndex = 0;
+    ui->dataTableView->selectRow(stepIndex);
+    //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 //this will be called when the "next step" button is pressed
@@ -372,8 +395,9 @@ void MainWindow::nextStep()
     }
     //fill and connect inputs:
     fillStepDataComboBoxes();
-    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
-    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    ui->dataTableView->selectRow(stepIndex);
+    //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 //this will be called when the previous step button is pressed
@@ -393,8 +417,9 @@ void MainWindow::prevStep()
     }
     //fill and connect inputs:
     fillStepDataComboBoxes();
-    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
-    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    ui->dataTableView->selectRow(stepIndex);
+    //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)
@@ -479,7 +504,8 @@ void MainWindow::connectPieceDataInputs()
     QObject::connect(ui->pieceCommentLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setComment);
     //refresh the table view when a step is added, deleted or moved:
     QObject::connect(currentPiece, &WorkPiece::stepOrderChanged, steps_model, &StepTableModel::stepOrderChanged);
-
+    //load the seleceted step when a step is selected from the table:
+    QObject::connect(ui->dataTableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::stepSelected);
 }
 
 //fills the drop down boxes with the values to choose from
@@ -537,6 +563,37 @@ void MainWindow::fillStepDataUIElements(Step* step)
     ui->pieceTypeCheckBox->setChecked(step->getFilterPieceType());
     ui->stepCommentLineEdit->setText(step->getComment());
     ui->timeSpinBox->setValue(step->getMinutesAll());
+    //select the current step in the table view
+    //ui->dataTableView->selectRow(stepIndex);
+}
+
+//disconnects the step data inputs from the given step:
+void MainWindow::disconnectStepDataInputs(Step * step)
+{
+    QObject::disconnect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setName);
+    QObject::disconnect(ui->stepNameComboBox, &QComboBox::editTextChanged, step, &Step::setName);
+
+    QObject::disconnect(ui->seamTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setSeamType);
+    QObject::disconnect(ui->seamTypeComboBox, &QComboBox::editTextChanged, step, &Step::setSeamType);
+
+    QObject::disconnect(ui->materialComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setMaterial);
+    QObject::disconnect(ui->materialComboBox, &QComboBox::editTextChanged, step, &Step::setMaterial);
+
+    QObject::disconnect(ui->detailComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setDetail);
+    QObject::disconnect(ui->detailComboBox, &QComboBox::editTextChanged, step, &Step::setDetail);
+
+    QObject::disconnect(ui->stepCountSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), step, &Step::setCount);
+    QObject::disconnect(ui->timeSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), step, &Step::setMinutesAll);
+
+    QObject::disconnect(ui->seamTypeCheckBox, &QCheckBox::toggled, step, &Step::setFilterSeamType);
+    QObject::disconnect(ui->materialCheckBox, &QCheckBox::toggled, step, &Step::setFilterMaterial);
+    QObject::disconnect(ui->detailCheckBox, &QCheckBox::toggled, step, &Step::setFilterDetail);
+    QObject::disconnect(ui->pieceTypeCheckBox, &QCheckBox::toggled, step, &Step::setFilterPieceType);
+
+    QObject::disconnect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
+
+    QObject::disconnect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
+
 }
 
 //connects the step data inputs to the given step
