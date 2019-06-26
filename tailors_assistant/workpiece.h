@@ -36,6 +36,8 @@ public:
     void loadStepsFromDatabase();
     void saveStepsToDatabase();
 
+    void deleteStep(int index);
+    void deleteAllSteps();
 signals:
 
 public slots:

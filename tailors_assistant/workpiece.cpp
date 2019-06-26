@@ -86,6 +86,16 @@ void WorkPiece::addStep(Step* step)
     steps.append(step);
 }
 
+void WorkPiece::deleteStep(int index)
+{
+    steps.remove(index);
+}
+
+void WorkPiece::deleteAllSteps()
+{
+    steps.clear();
+}
+
 QString WorkPiece::getName() const
 {
     return name;

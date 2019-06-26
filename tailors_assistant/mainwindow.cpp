@@ -4,6 +4,7 @@
 #include "workpiece.h"
 #include "step.h"
 #include "deletepiecedialog.h"
+#include "deletestepdialog.h"
 
 #include <QStandardItemModel>
 #include <QStringList>
@@ -56,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->previousStepPushButton, &QPushButton::clicked, this, &MainWindow::prevStep);
     QObject::connect(ui->nextStepPushButton, &QPushButton::clicked, this, &MainWindow::nextStep);
+
+    QObject::connect(ui->deleteStepPushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentStep);
 
     MainWindow::instance = this;
 }
@@ -251,6 +254,40 @@ QString MainWindow::getDatabaseDirPath() const
     return databaseDirPath;
 }
 
+//public slot for the delete current step button to use
+void MainWindow::tryToDeleteCurrentStep()
+{
+    DeleteStepDialog *dsd = new DeleteStepDialog();
+    dsd->open();
+    QObject::connect(dsd, &QDialog::accepted, this, &MainWindow::deleteCurrentStep);
+    QObject::connect(dsd, &QDialog::rejected, [=](){ delete dsd; });
+
+}
+
+//public slot to actually delete the current step from the database
+void MainWindow::deleteCurrentStep()
+{
+    currentPiece->deleteStep(stepIndex);
+    //if that was the last step, go back to the previous one:
+    if (stepIndex >= currentPiece->getSteps().length())
+    {
+        //except if it was the only one, then just empty it...
+        if (stepIndex != 0)
+        {
+            stepIndex = stepIndex - 1;
+        }
+        else
+        {
+            Step * newemptystep = new Step();
+            currentPiece->addStep(newemptystep);
+        }
+    }
+    //save changes to the database:
+    currentPiece->saveStepsToDatabase();
+    //display changes in ui:
+    fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+}
+
 //public slot for the delete current piece button to use
 void MainWindow::tryToDeleteCurrentPiece()
 {
@@ -265,6 +302,14 @@ void MainWindow::tryToDeleteCurrentPiece()
 //public slot to actually delete the current piece from the database
 void MainWindow::deleteCurrentPiece()
 {
+    //first, delete the piece's steps:
+    if (currentPiece->getId() != 0)
+    {
+        currentPiece->deleteAllSteps();
+        stepIndex = 0;
+        currentPiece->saveStepsToDatabase();
+    }
+    //then, delete piece data from db:
     if (currentPiece->getId() != 0)
     {
         QSqlQuery query;
@@ -272,17 +317,15 @@ void MainWindow::deleteCurrentPiece()
         query.bindValue(":id", currentPiece->getId());
         query.exec();
     }
+    //remove current piece data from ui:
     currentPiece = NULL;
     ui->editStepsPushButton->setEnabled(true);
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
-
-    //TODO:also delete steps!
 }
 
 void MainWindow::activateStepEdits()
 {
-//    currentPiece->loadStepsFromDatabase();
     currentPiece->savePieceToDatabase();
     ui->editStepsPushButton->setEnabled(false);
     ui->stepDataBox->setEnabled(true);

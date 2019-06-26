@@ -32,7 +32,8 @@ SOURCES += \
     workpieceselector.cpp \
     piecetablemodel.cpp \
     databasesettings.cpp \
-    deletepiecedialog.cpp
+    deletepiecedialog.cpp \
+    deletestepdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -42,10 +43,12 @@ HEADERS += \
     piecetablemodel.h \
     general.h \
     databasesettings.h \
-    deletepiecedialog.h
+    deletepiecedialog.h \
+    deletestepdialog.h
 
 FORMS += \
         mainwindow.ui \
     workpieceselector.ui \
     databasesettings.ui \
-    deletepiecedialog.ui
+    deletepiecedialog.ui \
+    deletestepdialog.ui

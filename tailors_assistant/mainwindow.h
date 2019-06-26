@@ -53,6 +53,8 @@ public slots:
     void nextStep();
     void prevStep();
 
+    void tryToDeleteCurrentStep();
+    void deleteCurrentStep();
 private:
     Ui::MainWindow *ui;
 
