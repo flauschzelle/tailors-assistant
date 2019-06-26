@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->dataTableView->setModel(steps_model);
     ui->dataTableView->resizeColumnsToContents();
+    ui->dataTableView->setEnabled(false);
 
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
@@ -381,6 +382,7 @@ void MainWindow::deleteCurrentPiece()
     ui->editStepsPushButton->setEnabled(true);
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
+    ui->dataTableView->setEnabled(false);
 }
 
 void MainWindow::activateStepEdits()
@@ -399,6 +401,7 @@ void MainWindow::activateStepEdits()
     }
     //connect everything to the first step:
     stepIndex = 0;
+    ui->dataTableView->setEnabled(true);
     ui->dataTableView->selectRow(stepIndex);
     //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
     //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
@@ -463,7 +466,7 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
     //set data source for table view:
     steps_model->setDataSource(currentPiece->getStepsPointer());
     ui->dataTableView->resizeColumnsToContents();
-    //ui->dataTableView->setModel(steps_model); //was not recommended by forum post
+    ui->dataTableView->setEnabled(false);
 }
 
 void MainWindow::setupDatabase()
