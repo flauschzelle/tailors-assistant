@@ -33,7 +33,8 @@ SOURCES += \
     piecetablemodel.cpp \
     databasesettings.cpp \
     deletepiecedialog.cpp \
-    deletestepdialog.cpp
+    deletestepdialog.cpp \
+    steptablemodel.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +45,8 @@ HEADERS += \
     general.h \
     databasesettings.h \
     deletepiecedialog.h \
-    deletestepdialog.h
+    deletestepdialog.h \
+    steptablemodel.h
 
 FORMS += \
         mainwindow.ui \

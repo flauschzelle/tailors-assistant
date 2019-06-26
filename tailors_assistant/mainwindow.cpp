@@ -5,6 +5,7 @@
 #include "step.h"
 #include "deletepiecedialog.h"
 #include "deletestepdialog.h"
+#include "steptablemodel.h"
 
 #include <QStandardItemModel>
 #include <QStringList>
@@ -32,8 +33,16 @@ MainWindow::MainWindow(QWidget *parent) :
                 test_model->setItem(row, column, item);
             }
         }
+    //TODO: remove all traces of the test model!
 
-    ui->dataTableView->setModel(test_model);
+    //model for table view:
+    empty_step_list = new QVector<Step*>();
+
+    steps_model = new StepTableModel();
+    steps_model->setMode(record); //default value
+    steps_model->setDataSource(empty_step_list);
+
+    ui->dataTableView->setModel(steps_model);
     ui->dataTableView->resizeColumnsToContents();
 
     ui->pieceDataBox->setEnabled(false);
@@ -69,6 +78,7 @@ MainWindow::~MainWindow()
     db.close();
     delete ui;
     delete test_model;
+    delete empty_step_list;
 }
 
 // sets the mode for record input or offer calculation
@@ -83,8 +93,9 @@ void MainWindow::setInputMode(PieceStatusMode mode)
         ui->pictureWidget->setVisible(true);
         ui->deletePiecePushButton->setText("Werkstück löschen");
 
-        QStringList record_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Zeit", "Kommentar"};
-        test_model->setHorizontalHeaderLabels(record_header_labels);
+        steps_model->setMode(record);
+        //QStringList record_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Zeit", "Kommentar"};
+        //steps_model->setHorizontalHeaderLabels(record_header_labels);
     }
 
     if (mode == offer)
@@ -94,8 +105,9 @@ void MainWindow::setInputMode(PieceStatusMode mode)
         ui->pictureWidget->setVisible(false);
         ui->deletePiecePushButton->setText("Angebot löschen");
 
-        QStringList offer_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Filter", "Daten", "min", "med", "avg", "max", "man", "Kommentar"};
-        test_model->setHorizontalHeaderLabels(offer_header_labels);
+        steps_model->setMode(offer);
+        //QStringList offer_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Filter", "Daten", "min", "med", "avg", "max", "man", "Kommentar"};
+        //steps_model->setHorizontalHeaderLabels(offer_header_labels);
     }
 }
 
@@ -319,6 +331,7 @@ void MainWindow::deleteCurrentPiece()
     }
     //remove current piece data from ui:
     currentPiece = NULL;
+    steps_model->setDataSource(empty_step_list);
     ui->editStepsPushButton->setEnabled(true);
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
@@ -397,6 +410,10 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
     fillPieceDataComboBoxes();
     fillPieceDataUIElements(currentPiece);
     connectPieceDataInputs();
+    //set data source for table view:
+    steps_model->setDataSource(currentPiece->getStepsPointer());
+    ui->dataTableView->resizeColumnsToContents();
+    //ui->dataTableView->setModel(steps_model); //was not recommended by forum post
 }
 
 void MainWindow::setupDatabase()
@@ -460,6 +477,9 @@ void MainWindow::connectPieceDataInputs()
     QObject::connect(ui->pieceTypeComboBox, &QComboBox::editTextChanged, currentPiece, &WorkPiece::setType);
     QObject::connect(ui->dateEdit, &QDateEdit::dateChanged, currentPiece, &WorkPiece::setDate);
     QObject::connect(ui->pieceCommentLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setComment);
+    //refresh the table view when a step is added, deleted or moved:
+    QObject::connect(currentPiece, &WorkPiece::stepOrderChanged, steps_model, &StepTableModel::stepOrderChanged);
+
 }
 
 //fills the drop down boxes with the values to choose from
@@ -543,6 +563,10 @@ void MainWindow::connectStepDataInputs(Step * step)
     QObject::connect(ui->pieceTypeCheckBox, &QCheckBox::toggled, step, &Step::setFilterPieceType);
 
     QObject::connect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
+
+    QObject::connect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
+
+
 }
 
 void MainWindow::setupConfigFile()

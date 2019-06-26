@@ -81,19 +81,27 @@ QVector<Step*> WorkPiece::getSteps()
     return steps;
 }
 
+QVector<Step*>* WorkPiece::getStepsPointer()
+{
+    return &steps;
+}
+
 void WorkPiece::addStep(Step* step)
 {
     steps.append(step);
+    emit stepOrderChanged();
 }
 
 void WorkPiece::deleteStep(int index)
 {
     steps.remove(index);
+    emit stepOrderChanged();
 }
 
 void WorkPiece::deleteAllSteps()
 {
     steps.clear();
+    emit stepOrderChanged();
 }
 
 QString WorkPiece::getName() const

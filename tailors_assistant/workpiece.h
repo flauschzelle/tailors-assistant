@@ -26,6 +26,7 @@ public:
     QDate getDate() const;
     QPixmap getPicture() const;
     QVector<Step*> getSteps();
+    QVector<Step*>* getStepsPointer();
     void addStep(Step * step);
 
     static void setupTable();
@@ -38,7 +39,9 @@ public:
 
     void deleteStep(int index);
     void deleteAllSteps();
+
 signals:
+    void stepOrderChanged();
 
 public slots:
     void setStatus(const PieceStatusMode& value);

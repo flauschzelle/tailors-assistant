@@ -66,6 +66,7 @@ QString Step::getName() const
 void Step::setName(const QString& value)
 {
     name = value;
+    emit stepDataChanged(this);
 }
 
 int Step::getMinutesAll() const
@@ -76,6 +77,7 @@ int Step::getMinutesAll() const
 void Step::setMinutesAll(int value)
 {
     minutesAll = value;
+    emit stepDataChanged(this);
 }
 
 int Step::getCount() const
@@ -86,6 +88,7 @@ int Step::getCount() const
 void Step::setCount(int value)
 {
     count = value;
+    emit stepDataChanged(this);
 }
 
 QString Step::getSeamType() const
@@ -96,6 +99,7 @@ QString Step::getSeamType() const
 void Step::setSeamType(const QString& value)
 {
     seamType = value;
+    emit stepDataChanged(this);
 }
 
 QString Step::getMaterial() const
@@ -106,6 +110,7 @@ QString Step::getMaterial() const
 void Step::setMaterial(const QString& value)
 {
     material = value;
+    emit stepDataChanged(this);
 }
 
 QString Step::getDetail() const
@@ -116,6 +121,7 @@ QString Step::getDetail() const
 void Step::setDetail(const QString& value)
 {
     detail = value;
+    emit stepDataChanged(this);
 }
 
 QString Step::getComment() const
@@ -126,6 +132,7 @@ QString Step::getComment() const
 void Step::setComment(const QString& value)
 {
     comment = value;
+    emit stepDataChanged(this);
 }
 
 bool Step::getFilterSeamType() const
@@ -136,6 +143,7 @@ bool Step::getFilterSeamType() const
 void Step::setFilterSeamType(bool value)
 {
     filterSeamType = value;
+    emit stepDataChanged(this);
 }
 
 bool Step::getFilterMaterial() const
@@ -146,6 +154,7 @@ bool Step::getFilterMaterial() const
 void Step::setFilterMaterial(bool value)
 {
     filterMaterial = value;
+    emit stepDataChanged(this);
 }
 
 bool Step::getFilterDetail() const
@@ -156,6 +165,7 @@ bool Step::getFilterDetail() const
 void Step::setFilterDetail(bool value)
 {
     filterDetail = value;
+    emit stepDataChanged(this);
 }
 
 bool Step::getFilterPieceType() const
@@ -163,7 +173,75 @@ bool Step::getFilterPieceType() const
     return filterPieceType;
 }
 
+QString Step::getFilters() const
+{
+    QString filters = "";
+    if (filterSeamType)
+    {
+        filters.append("N");
+    }
+    else
+    {
+        filters.append("-");
+    }
+
+    if (filterMaterial)
+    {
+        filters.append("M");
+    }
+    else
+    {
+        filters.append("-");
+    }
+
+    if (filterDetail)
+    {
+        filters.append("D");
+    }
+    else
+    {
+        filters.append("-");
+    }
+
+    if (filterPieceType)
+    {
+        filters.append("W");
+    }
+    else
+    {
+        filters.append("-");
+    }
+
+    return filters;
+}
+
 void Step::setFilterPieceType(bool value)
 {
     filterPieceType = value;
+    emit stepDataChanged(this);
+}
+
+int Step::getMax() const
+{
+    return max;
+}
+
+int Step::getAvg() const
+{
+    return avg;
+}
+
+int Step::getMed() const
+{
+    return med;
+}
+
+int Step::getMin() const
+{
+    return min;
+}
+
+int Step::getBaseDatasets() const
+{
+    return baseDatasets;
 }

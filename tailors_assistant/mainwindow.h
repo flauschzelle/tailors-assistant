@@ -8,6 +8,7 @@
 #include "workpiece.h"
 #include "workpieceselector.h"
 #include "databasesettings.h"
+#include "steptablemodel.h"
 
 namespace Ui {
 class MainWindow;
@@ -61,6 +62,8 @@ private:
     PieceStatusMode mode;
 
     QStandardItemModel *test_model;
+    StepTableModel *steps_model;
+    QVector<Step*>* empty_step_list;
 
     WorkPiece *currentPiece;
 

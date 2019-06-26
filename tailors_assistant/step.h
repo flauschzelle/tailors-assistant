@@ -28,8 +28,16 @@ public:
     bool getFilterMaterial() const;
     bool getFilterDetail() const;
     bool getFilterPieceType() const;
+    QString getFilters() const;
+
+    int getBaseDatasets() const;
+    int getMin() const;
+    int getMed() const;
+    int getAvg() const;
+    int getMax() const;
 
 signals:
+    void stepDataChanged(Step * step);
 
 public slots:
     void setName(const QString& value);
