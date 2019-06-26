@@ -104,6 +104,24 @@ void WorkPiece::deleteAllSteps()
     emit stepOrderChanged();
 }
 
+void WorkPiece::moveStepBack(int index)
+{
+    if (index > 0)
+    {
+        steps.move(index, index-1);
+    }
+    emit stepOrderChanged();
+}
+
+void WorkPiece::moveStepForward(int index)
+{
+    if (index < (steps.length()-1))
+    {
+        steps.move(index, index+1);
+    }
+    emit stepOrderChanged();
+}
+
 QString WorkPiece::getName() const
 {
     return name;

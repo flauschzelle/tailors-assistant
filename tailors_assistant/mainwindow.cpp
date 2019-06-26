@@ -69,6 +69,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->deleteStepPushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentStep);
 
+    QObject::connect(ui->upToolButton, &QToolButton::clicked, this, &MainWindow::stepMovedUp);
+    QObject::connect(ui->downToolButton, &QToolButton::clicked, this, &MainWindow::stepMovedDown);
+
     MainWindow::instance = this;
 }
 
@@ -319,6 +322,28 @@ void MainWindow::stepSelected(const QItemSelection &selected, const QItemSelecti
     //fill and connect inputs to newly selected step
     fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
     connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+}
+
+//slot that is called when the "up" button is pressed
+void MainWindow::stepMovedUp()
+{
+    currentPiece->moveStepBack(stepIndex);
+    if (stepIndex > 0)
+    {
+        stepIndex = stepIndex - 1;
+    }
+    ui->dataTableView->selectRow(stepIndex);
+}
+
+//slot that is called when the "down" button is pressed
+void MainWindow::stepMovedDown()
+{
+    currentPiece->moveStepForward(stepIndex);
+    if (stepIndex < (currentPiece->getSteps().length()-1))
+    {
+        stepIndex = stepIndex + 1;
+    }
+    ui->dataTableView->selectRow(stepIndex);
 }
 
 //public slot for the delete current piece button to use

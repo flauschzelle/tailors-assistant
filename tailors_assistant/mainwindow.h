@@ -58,6 +58,8 @@ public slots:
     void deleteCurrentStep();
 
     void stepSelected(const QItemSelection& selected, const QItemSelection &);
+    void stepMovedUp();
+    void stepMovedDown();
 
 private:
     Ui::MainWindow *ui;

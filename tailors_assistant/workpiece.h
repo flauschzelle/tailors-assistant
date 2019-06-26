@@ -39,6 +39,8 @@ public:
 
     void deleteStep(int index);
     void deleteAllSteps();
+    void moveStepBack(int index);
+    void moveStepForward(int index);
 
 signals:
     void stepOrderChanged();
