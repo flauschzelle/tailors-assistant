@@ -193,6 +193,11 @@ void WorkPiece::loadStepsFromDatabase()
         nextStep->setFilterPieceType(query.value(12).toBool());
         nextStep->setComment(query.value(13).toString());
 
+        if (status == offer)
+        {
+            nextStep->calculateStatistics(this);
+        }
+
         steps.append(nextStep);
         printf("loaded step: %s (%d)\n", nextStep->getName().toStdString().c_str(), nextStep->getId());
     }

@@ -271,6 +271,7 @@ void MainWindow::tryToDeleteCurrentStep()
 //public slot to actually delete the current step from the database
 void MainWindow::deleteCurrentStep()
 {
+    disconnectStepDataInputs(currentPiece->getSteps().at(stepIndex)); //disconnect inputs
     currentPiece->deleteStep(stepIndex);
     //if that was the last step, go back to the previous one:
     if (stepIndex >= currentPiece->getSteps().length())
@@ -289,7 +290,9 @@ void MainWindow::deleteCurrentStep()
     //save changes to the database:
     currentPiece->saveStepsToDatabase();
     //display changes in ui:
+    calculateStepStatistics();
     fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 //slot that is called when a step is selected from the table view
@@ -309,6 +312,7 @@ void MainWindow::stepSelected(const QItemSelection &selected, const QItemSelecti
         ui->previousStepPushButton->setEnabled(false);
     }
     //fill and connect inputs to newly selected step
+    calculateStepStatistics();
     fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
     connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
@@ -472,6 +476,15 @@ void MainWindow::setupDatabase()
     }
 }
 
+//slot to be called when the statistics of the current step shall be refreshed
+void MainWindow::calculateStepStatistics()
+{
+    if (mode == offer)
+    {
+        currentPiece->getSteps().at(stepIndex)->calculateStatistics(currentPiece);
+    }
+}
+
 //fill the comboBoxes with data from the db:
 void MainWindow::fillPieceDataComboBoxes()
 {
@@ -586,6 +599,7 @@ void MainWindow::fillStepDataUIElements(Step* step)
 //disconnects the step data inputs from the given step:
 void MainWindow::disconnectStepDataInputs(Step * step)
 {
+    //inputs
     QObject::disconnect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setName);
     QObject::disconnect(ui->stepNameComboBox, &QComboBox::editTextChanged, step, &Step::setName);
 
@@ -608,13 +622,31 @@ void MainWindow::disconnectStepDataInputs(Step * step)
 
     QObject::disconnect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
 
+    //data changes
     QObject::disconnect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
+
+    //statistics
+    QObject::disconnect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->stepNameComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->seamTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->seamTypeComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->materialComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->materialComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->detailComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->detailComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->stepCountSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->timeSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->seamTypeCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->materialCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->detailCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
+    QObject::disconnect(ui->pieceTypeCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
 
 }
 
 //connects the step data inputs to the given step
 void MainWindow::connectStepDataInputs(Step * step)
 {
+    //save step data when input:
     QObject::connect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), step, &Step::setName);
     QObject::connect(ui->stepNameComboBox, &QComboBox::editTextChanged, step, &Step::setName);
 
@@ -637,8 +669,24 @@ void MainWindow::connectStepDataInputs(Step * step)
 
     QObject::connect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
 
-    QObject::connect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
+    //recalculate statistics when step data is input
+    QObject::connect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->stepNameComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->seamTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->seamTypeComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->materialComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->materialComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->detailComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->detailComboBox, &QComboBox::editTextChanged, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->stepCountSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->timeSpinBox, static_cast<void(QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->seamTypeCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->materialCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->detailCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
+    QObject::connect(ui->pieceTypeCheckBox, &QCheckBox::toggled, this, &MainWindow::calculateStepStatistics);
 
+    //refresh table view when data is changed:
+    QObject::connect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
 
 }
 

@@ -61,6 +61,8 @@ public slots:
     void stepMovedUp();
     void stepMovedDown();
 
+    void calculateStepStatistics();
+
 private:
     Ui::MainWindow *ui;
 

@@ -6,6 +6,8 @@
 #include <QSql>
 #include <QSqlQuery>
 
+class WorkPiece;
+
 class Step : public QObject
 {
     Q_OBJECT
@@ -35,6 +37,8 @@ public:
     int getMed() const;
     int getAvg() const;
     int getMax() const;
+
+    void calculateStatistics(WorkPiece * piece);
 
 signals:
     void stepDataChanged(Step * step);
@@ -71,7 +75,7 @@ private:
     int max;
     int baseDatasets;
 
-    //add more properties here if necessary
+    void calculateStatsPart(bool median, WorkPiece* piece);
 };
 
 #endif // STEP_H

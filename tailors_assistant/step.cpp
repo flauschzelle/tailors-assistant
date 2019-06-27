@@ -1,4 +1,5 @@
 #include "step.h"
+#include "workpiece.h"
 
 Step::Step(QObject *parent) : QObject(parent)
 {
@@ -224,6 +225,114 @@ void Step::setFilterPieceType(bool value)
 int Step::getMax() const
 {
     return max;
+}
+
+//the parameter determines if the median or the other values shall be calculated
+void Step::calculateStatsPart(bool median, WorkPiece * piece)
+{
+    //prepare query: -------------------------------
+    QSqlQuery query;
+    QString q = "WITH tmp AS "
+                "( SELECT step_id, count, minutes_all, "
+                "minutes_all*60/count AS seconds_one "
+                "FROM steps "
+                "WHERE piece != (:pid) AND name = (:name) "
+                "AND piece IN (SELECT piece_id FROM pieces WHERE status = 0)";
+    if (filterSeamType)
+    {
+        q = q + " AND seam_type = (:st)";
+    }
+    if (filterMaterial)
+    {
+        q = q + " AND material = (:mat)";
+    }
+    if (filterDetail)
+    {
+        q = q + " AND detail = (:det)";
+    }
+    if (filterPieceType)
+    {
+        q = q + " AND piece IN (SELECT piece_id FROM pieces WHERE type = (:pt))";
+    }
+    if (!median)
+    {
+        //this part calculates data, min, max, and avg:
+        q = q + ") "
+                "SELECT COUNT(step_id), "
+                "MIN(seconds_one), "
+                "MAX(seconds_one), "
+                "AVG(seconds_one) FROM tmp";
+    }
+    if (median)
+    {
+        //this part calculates the median:
+        q = q + " ORDER BY seconds_one) "
+                "SELECT AVG (seconds_one) "
+                "FROM (SELECT seconds_one "
+                "FROM tmp "
+                "ORDER BY seconds_one "
+                "LIMIT 2 - (SELECT COUNT(*) FROM tmp) % 2 "
+                "OFFSET (SELECT (COUNT(*) - 1) / 2 FROM tmp))";
+    }
+
+
+    printf ("%s\n", q.toStdString().c_str()); //for debugging--------------------------------------
+
+    query.prepare(q);
+    query.bindValue(":pid", piece->getId());
+    query.bindValue(":name", name);
+    if (filterSeamType)
+    {
+        query.bindValue(":st", seamType);
+    }
+    if (filterMaterial)
+    {
+        query.bindValue(":mat", material);
+    }
+    if (filterDetail)
+    {
+        query.bindValue(":det", detail);
+    }
+    if (filterPieceType)
+    {
+        query.bindValue(":pt", piece->getType());
+    }
+    //execute the prepared query: -------------------
+    bool s = query.exec();
+    if (s == false)
+    {
+        printf("error while getting statistics from database:\n");
+        printf("%s", query.lastError().text().toStdString().c_str());
+        exit(EXIT_FAILURE);
+    }
+    //get the values from the first result row:
+    if (query.next())
+    {
+        if (!median)
+        {
+            baseDatasets = query.value(0).toInt();
+            min = (query.value(1).toInt()*count/60);
+            max = (query.value(2).toInt()*count/60);
+            avg = (query.value(3).toInt()*count/60);
+        }
+        if (median)
+        {
+            med = (query.value(0).toInt()*count/60);
+        }
+    }
+
+}
+
+//this gets the statistical data for this step from the db,
+//given the piece to which the current step belongs as a parameter
+void Step::calculateStatistics(WorkPiece* piece)
+{
+    //calculate other data:
+    calculateStatsPart(false, piece);
+    //calculate median:
+    calculateStatsPart(true, piece);
+    //signal that the table shall refresh the data
+    emit stepDataChanged(this);
 }
 
 int Step::getAvg() const
