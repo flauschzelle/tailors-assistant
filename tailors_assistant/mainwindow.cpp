@@ -33,7 +33,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->dataTableView->setModel(steps_model);
     ui->dataTableView->resizeColumnsToContents();
-    ui->dataTableView->setEnabled(false);
+
+    //visibility and default values:
+    ui->resultViewWidget->setEnabled(false);
 
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
@@ -42,7 +44,11 @@ MainWindow::MainWindow(QWidget *parent) :
     stepIndex = 0; //default value for step index
     selector = NULL; //default value for selector pointer
     db_settings_dialog = NULL; //default value for db settings dialog pointer
+    pricePerHour = 35.70; //default price
+    ui->priceDoubleSpinBox->setValue(pricePerHour); //show default price
+    ui->sumsDisplayLabel->setText(""); //set sums label to empty
 
+    //connections to ui:
     QObject::connect(ui->actionNeues_Werkst_ck, &QAction::triggered, this, &MainWindow::newPiece); //connect signal & slot for new piece menu item
     QObject::connect(ui->actionNeues_Angebot, &QAction::triggered, this, &MainWindow::newOffer); //connect signal & slot for new offer menu item
 
@@ -61,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->upToolButton, &QToolButton::clicked, this, &MainWindow::stepMovedUp);
     QObject::connect(ui->downToolButton, &QToolButton::clicked, this, &MainWindow::stepMovedDown);
+
+    QObject::connect(ui->priceDoubleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::setPricePerHour);
 
     MainWindow::instance = this;
 }
@@ -374,7 +382,7 @@ void MainWindow::deleteCurrentPiece()
     ui->editStepsPushButton->setEnabled(true);
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
-    ui->dataTableView->setEnabled(false);
+    ui->resultViewWidget->setEnabled(false);
 }
 
 void MainWindow::activateStepEdits()
@@ -393,7 +401,7 @@ void MainWindow::activateStepEdits()
     }
     //connect everything to the first step:
     stepIndex = 0;
-    ui->dataTableView->setEnabled(true);
+    ui->resultViewWidget->setEnabled(true);
     ui->dataTableView->selectRow(stepIndex);
     //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
     //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
@@ -458,7 +466,9 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
     //set data source for table view:
     steps_model->setDataSource(currentPiece->getStepsPointer());
     ui->dataTableView->resizeColumnsToContents();
-    ui->dataTableView->setEnabled(false);
+    ui->resultViewWidget->setEnabled(false);
+    //pre-calculate the sums
+    setDisplayedSums();
 }
 
 void MainWindow::setupDatabase()
@@ -483,6 +493,108 @@ void MainWindow::calculateStepStatistics()
     {
         currentPiece->getSteps().at(stepIndex)->calculateStatistics(currentPiece);
     }
+}
+
+void MainWindow::setPricePerHour(double value)
+{
+    pricePerHour = value;
+    setDisplayedSums();
+}
+
+void MainWindow::setDisplayedSums()
+{
+    QString sums = "";
+    if (mode == record)
+    {
+        int sum_minutes = 0;
+        for (int i=0; i < currentPiece->getSteps().length(); i++)
+        {
+            sum_minutes += currentPiece->getSteps().at(i)->getMinutesAll();
+        }
+        int sum_tenth_hours = (sum_minutes+3)/6; //rounded time in 0.1 hour units
+        int sum_hours = sum_tenth_hours/10; //number before the decimal point
+        int sum_hours_decimal = sum_tenth_hours % 10; //number after the decimal point
+
+        int centsPerHour = pricePerHour*100; //hourly price rate in cents
+
+        int priceInCents = (sum_hours*centsPerHour)+((sum_hours_decimal*centsPerHour)+5)/10;
+        int priceInEuro = priceInCents/100; //euro value before the decimal point
+        int priceInEuroCents = priceInCents % 100; //cent value after the decimal point
+
+        sums = "" + QString::number(sum_minutes) + " min  |  " + QString::number(sum_hours) + "," +
+               QString::number(sum_hours_decimal) + " h  |  " + QString::number(priceInEuro) + "," +
+               QString::number(priceInEuroCents) + " €";
+
+         ui->sumsDisplayLabel->setText(sums);
+    }
+    if (mode == offer)
+    {
+        for (int j=0; j < 5; j++)
+        {
+            int sum_minutes = 0;
+            for (int i=0; i < currentPiece->getSteps().length(); i++)
+            {
+                switch (j) {
+                    case 0:
+                        sum_minutes += currentPiece->getSteps().at(i)->getMin();
+                        break;
+                    case 1:
+                        sum_minutes += currentPiece->getSteps().at(i)->getMed();
+                        break;
+                    case 2:
+                        sum_minutes += currentPiece->getSteps().at(i)->getAvg();
+                        break;
+                    case 3:
+                        sum_minutes += currentPiece->getSteps().at(i)->getMax();
+                        break;
+                    case 4:
+                        sum_minutes += currentPiece->getSteps().at(i)->getMinutesAll();
+                        break;
+                    default:
+                        sum_minutes += currentPiece->getSteps().at(i)->getMinutesAll();
+                        break;
+                }
+            }
+            int sum_tenth_hours = (sum_minutes+3)/6; //rounded time in 0.1 hour units
+            int sum_hours = sum_tenth_hours/10; //number before the decimal point
+            int sum_hours_decimal = sum_tenth_hours % 10; //number after the decimal point
+
+            int centsPerHour = pricePerHour*100; //hourly price rate in cents
+
+            int priceInCents = (sum_hours*centsPerHour)+((sum_hours_decimal*centsPerHour)+5)/10;
+            int priceInEuro = priceInCents/100; //euro value before the decimal point
+            int priceInEuroCents = priceInCents % 100; //cent value after the decimal point
+            QString prefix = "";
+            switch (j) {
+                case 0:
+                    prefix = "min:    ";
+                    break;
+                case 1:
+                    prefix = "\nmed:    ";
+                    break;
+                case 2:
+                    prefix = "\navg:    ";
+                    break;
+                case 3:
+                    prefix = "\nmax:    ";
+                    break;
+                case 4:
+                    prefix = "\nman:    ";
+                    break;
+                default:
+                    prefix = "\nman:    ";
+                    break;
+            }
+            QString sum = prefix + QString::number(sum_minutes) + " min  |  " + QString::number(sum_hours) + "," +
+                   QString::number(sum_hours_decimal) + " h  |  " + QString::number(priceInEuro) + "," +
+                   QString::number(priceInEuroCents) + " €";
+            sums = sums + sum;
+
+        }
+
+        ui->sumsDisplayLabel->setText(sums);
+    }
+
 }
 
 //fill the comboBoxes with data from the db:
@@ -624,6 +736,7 @@ void MainWindow::disconnectStepDataInputs(Step * step)
 
     //data changes
     QObject::disconnect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
+    QObject::disconnect(step, &Step::stepDataChanged, this, &MainWindow::setDisplayedSums);
 
     //statistics
     QObject::disconnect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
@@ -687,6 +800,8 @@ void MainWindow::connectStepDataInputs(Step * step)
 
     //refresh table view when data is changed:
     QObject::connect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
+    //refresh sums when data is changed:
+    QObject::connect(step, &Step::stepDataChanged, this, &MainWindow::setDisplayedSums);
 
 }
 

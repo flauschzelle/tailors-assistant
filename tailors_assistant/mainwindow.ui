@@ -787,8 +787,8 @@
        </layout>
       </item>
       <item>
-       <widget class="QWidget" name="widget_2" native="true">
-        <layout class="QVBoxLayout" name="verticalLayout_36">
+       <widget class="QWidget" name="resultViewWidget" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
           <widget class="QTableView" name="dataTableView">
            <property name="sizeAdjustPolicy">
@@ -821,11 +821,38 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="sumsLabel">
-           <property name="text">
-            <string>Summen:</string>
-           </property>
-          </widget>
+          <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="1,1,1,3">
+           <item>
+            <widget class="QLabel" name="priceInputLabel">
+             <property name="text">
+              <string>Preis in € / h</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QDoubleSpinBox" name="priceDoubleSpinBox"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="sumsLabel">
+             <property name="text">
+              <string>Summen:</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="sumsDisplayLabel">
+             <property name="text">
+              <string>60 min  |  1,0 h  |  30,00 €</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
         </layout>
        </widget>
@@ -861,7 +888,7 @@
    </widget>
    <widget class="QMenu" name="menuDatenbank">
     <property name="title">
-     <string>Da&amp;tenbank</string>
+     <string>Date&amp;nbank</string>
     </property>
     <addaction name="actionDatenbank_Einstellungen"/>
    </widget>

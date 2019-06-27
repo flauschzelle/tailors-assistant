@@ -32,6 +32,8 @@ public:
 
     void setCurrentPiece(WorkPiece * piece);
 
+
+
 public slots:
     void newPiece();
     void newOffer();
@@ -62,6 +64,8 @@ public slots:
     void stepMovedDown();
 
     void calculateStepStatistics();
+    void setPricePerHour(double value);
+    void setDisplayedSums();
 
 private:
     Ui::MainWindow *ui;
@@ -85,6 +89,8 @@ private:
     QFile configfile;
 
     DatabaseSettings *db_settings_dialog;
+
+    double pricePerHour;
 
     void setupConfigFile();
     void initDatabase();
