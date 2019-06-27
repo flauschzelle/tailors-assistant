@@ -44,6 +44,19 @@ QString WorkPiece::getType() const
 void WorkPiece::setType(const QString& value)
 {
     type = value;
+
+    //if there are any steps,
+    //save piece and refresh view on type change
+    //for correct functionality of type filter:
+    if (steps.length() > 0)
+    {
+        savePieceToDatabase();
+        for (int i = 0; i < steps.length(); i++)
+        {
+            steps.at(i)->calculateStatistics(this);
+        }
+        emit stepOrderChanged();
+    }
 }
 
 QString WorkPiece::getComment() const
