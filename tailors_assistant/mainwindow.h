@@ -66,7 +66,6 @@ private:
 
     PieceStatusMode mode;
 
-    QStandardItemModel *test_model;
     StepTableModel *steps_model;
     QVector<Step*>* empty_step_list;
 

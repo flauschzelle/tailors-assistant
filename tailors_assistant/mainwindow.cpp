@@ -24,17 +24,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setupDatabase();
     fillPieceDataComboBoxes();
 
-    //simple model for testing the table view:
-    test_model = new QStandardItemModel(24, 7);
-        for (int row = 0; row < 24; ++row) {
-            for (int column = 0; column < 7; ++column) {
-                QStandardItem *item = new QStandardItem(QString("row%0, col%1").arg(row).arg(column));
-                item->setFlags(item->flags() & ~Qt::ItemIsEditable); //make the items not editable (for the table view)
-                test_model->setItem(row, column, item);
-            }
-        }
-    //TODO: remove all traces of the test model!
-
     //model for table view:
     empty_step_list = new QVector<Step*>();
 
@@ -81,7 +70,6 @@ MainWindow::~MainWindow()
 {
     db.close();
     delete ui;
-    delete test_model;
     delete empty_step_list;
 }
 
