@@ -10,6 +10,7 @@
 #include <QStandardItemModel>
 #include <QStringList>
 #include <QFile>
+#include <QCloseEvent>
 
 MainWindow* MainWindow::instance = NULL; //initialize the static member variable
 
@@ -79,6 +80,18 @@ MainWindow::~MainWindow()
     db.close();
     delete ui;
     delete empty_step_list;
+}
+
+//reimplementation of closeEvent
+//so that the current work is auto-saved before closing:
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    //save current piece
+    if (currentPiece != NULL)
+    {
+        currentPiece->savePieceToDatabase();
+    }
+    event->accept();
 }
 
 // sets the mode for record input or offer calculation
