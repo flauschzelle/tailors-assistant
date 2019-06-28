@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QMessageBox>
 
 #include "general.h"
 #include "workpiece.h"
@@ -67,6 +68,10 @@ public slots:
     void setPricePerHour(double value);
     void setDisplayedSums();
 
+    void openFileExportDialog();
+    void cleanUpExportSelector();
+    void getExportPathFromSelector();
+
 protected:
     void closeEvent(QCloseEvent* event) override;
 
@@ -92,6 +97,9 @@ private:
     QFile configfile;
 
     FilePathSettingsDialog *db_settings_dialog;
+    FilePathSettingsDialog *export_textfile_dialog;
+
+    QString lastUsedExportPath;
 
     double pricePerHour;
 

@@ -339,3 +339,45 @@ bool WorkPiece::isEmpty()
     return((id == 0)&&(name.length() == 0));
 }
 
+//slot to be called when a textfile shall be exported
+//parameter is the target filename including the complete path
+bool WorkPiece::exportToTextfile(const QString filename)
+{
+    exportfile.setFileName(filename);
+
+    if (!exportfile.exists()) //if the file does not exist yet
+    {
+        QDir dir;
+        //if the directory to where the file should be written does not exist yet:
+        if (!dir.exists(QFileInfo(exportfile).absolutePath()))
+        {
+            //try to create the dir:
+            bool ok = dir.mkpath(QFileInfo(exportfile).absolutePath());
+            if (!ok)
+            {
+                printf("the directory for the export file could not be created");
+                return false;
+            }
+        }
+    }
+    else //if the file already existed (and shall be overwritten)
+    {
+        //anything special to do here?
+    }
+
+    //open (or create) the file with (over)write access:
+    bool ok = exportfile.open(QIODevice::WriteOnly);
+    if (!ok)
+    {
+        printf("export file could not be opened or created");
+        return false;
+    }
+
+    //write "defaultText" to the file:
+    QTextStream out(&exportfile);
+    out << "defaultText"; //HERE WILL BE THE BIG PART LATER!!!!!
+
+    //close the file connection and return:
+    exportfile.close();
+    return true;
+}

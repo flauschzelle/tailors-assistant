@@ -41,8 +41,10 @@ MainWindow::MainWindow(QWidget *parent) :
     setInputMode(record); //default value for input mode
     currentPiece = NULL; //default value for piece pointer
     stepIndex = 0; //default value for step index
-    selector = NULL; //default value for selector pointer
-    db_settings_dialog = NULL; //default value for db settings dialog pointer
+    selector = NULL; //initialize with default value
+    db_settings_dialog = NULL; //initialize with default value
+    export_textfile_dialog = NULL; //initialize with default value
+    lastUsedExportPath = QDir::homePath() + "/tailors_assistant/werkstueck.txt"; //initialize with default value
     pricePerHour = 35.70; //default price
     ui->priceDoubleSpinBox->setValue(pricePerHour); //show default price
     ui->sumsDisplayLabel->setText(""); //set sums label to empty
@@ -60,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings);
     QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
     QObject::connect(ui->editStepsPushButton, &QPushButton::clicked, this, &MainWindow::activateStepEdits);
+
+    QObject::connect(ui->exportPiecePushButton, &QPushButton::clicked, this, &MainWindow::openFileExportDialog);
 
     QObject::connect(ui->previousStepPushButton, &QPushButton::clicked, this, &MainWindow::prevStep);
     QObject::connect(ui->nextStepPushButton, &QPushButton::clicked, this, &MainWindow::nextStep);
@@ -250,6 +254,48 @@ void MainWindow::initDatabase()
         printf ("Error: unable to open database connection");
         exit (EXIT_FAILURE);
     }
+}
+
+//slot function to open a dialog for exporting a text file
+void MainWindow::openFileExportDialog()
+{
+    export_textfile_dialog = new FilePathSettingsDialog(this);
+    export_textfile_dialog->setTextAndPath(lastUsedExportPath);
+    export_textfile_dialog->setWindowTitle("Textdatei exportieren");
+    QString labeltext = "In diese Datei exportieren \n"
+                        "(falls die Datei bereits existiert, wird der Inhalt überschrieben):";
+    export_textfile_dialog->setLabelText(labeltext);
+    export_textfile_dialog->setFileDialogTitle("Textdatei zum Export auswählen");
+    export_textfile_dialog->setFileDialogDirPath(QFileInfo(lastUsedExportPath).absolutePath());
+    export_textfile_dialog->setFileDialogTypes("Text Files (*.txt)");
+    export_textfile_dialog->open();
+    QObject::connect(export_textfile_dialog, &QDialog::accepted, this, &MainWindow::getExportPathFromSelector);
+    QObject::connect(export_textfile_dialog, &QDialog::rejected, this, &MainWindow::cleanUpExportSelector);
+}
+
+//slot
+void MainWindow::getExportPathFromSelector()
+{
+    QString path = export_textfile_dialog->getNewPath();
+    if (currentPiece != NULL && path != (""))
+    {
+        currentPiece->savePieceToDatabase(); //auto-save for security,
+        //then let the piece export itself:
+        bool ok = currentPiece->exportToTextfile(path);
+        if (!ok)
+        {
+            QMessageBox::critical(this, "Fehler", "Die Datei konnte nicht gespeichert werden.");
+        }
+    }
+    delete export_textfile_dialog;
+    export_textfile_dialog = NULL; //re-initialize selector to null pointer
+}
+
+//slot
+void MainWindow::cleanUpExportSelector()
+{
+    delete export_textfile_dialog;
+    export_textfile_dialog = NULL; //re-initialize selector to null pointer
 }
 
 //slot function for opening the database settings dialog

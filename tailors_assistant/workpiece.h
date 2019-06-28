@@ -58,6 +58,8 @@ public slots:
     void setDate(const QDate& value);
     void setPicture(const QPixmap& value);
 
+    bool exportToTextfile(const QString filename);
+
 private:
     int id;
     PieceStatusMode status;
@@ -69,6 +71,8 @@ private:
     QPixmap picture;
 
     QVector<Step*> steps;
+
+    QFile exportfile;
 };
 
 #endif // WORKPIECE_H
