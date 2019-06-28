@@ -50,7 +50,7 @@ void FilePathSettingsDialog::setPath(const QString& text)
 //slot to be called when the browse button is pressed
 void FilePathSettingsDialog::setPathFromFilesystem()
 {
-    QString filePath = QFileDialog::getOpenFileName(this, fileDialogTitle, fileDialogDirPath, fileDialogTypes);
+    QString filePath = QFileDialog::getSaveFileName(this, fileDialogTitle, fileDialogDirPath, fileDialogTypes);
     if (!filePath.isEmpty())
     {
         path = filePath;
