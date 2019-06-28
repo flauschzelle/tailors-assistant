@@ -84,6 +84,9 @@ void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
     }
     proxy_model = new QSortFilterProxyModel();
     proxy_model->setSourceModel(piece_selection_model);
+    //empty, case insensitive default filter:
+    proxy_model->setFilterRegExp((QRegExp("", Qt::CaseInsensitive, QRegExp::RegExp)));
+    proxy_model->setFilterKeyColumn(-1); //filter from all columns
     ui->tableView->setModel(proxy_model);
     ui->tableView->resizeColumnsToContents();
 
@@ -99,6 +102,10 @@ void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
 
     //connect the selection changed signal to the slot that registers the selected row:
     QObject::connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &WorkPieceSelector::rowSelectionChanged);
+
+    //connect the filter input to the filtering function:
+    QObject::connect(ui->filterLineEdit, &QLineEdit::textChanged, proxy_model, QOverload<const QString &>::of(&QSortFilterProxyModel::setFilterRegExp));
+
 }
 
 void WorkPieceSelector::setConversionMode(const PieceConversionMode& value)
