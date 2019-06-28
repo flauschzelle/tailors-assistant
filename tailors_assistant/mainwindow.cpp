@@ -259,7 +259,15 @@ void MainWindow::initDatabase()
 //slot function for opening the database settings dialog
 void MainWindow::openDatabaseSettings()
 {
-    db_settings_dialog = new DatabaseSettings();
+    db_settings_dialog = new FilePathSettingsDialog();
+    db_settings_dialog->setTextAndPath(databasePath);
+    db_settings_dialog->setWindowTitle("Datenbank-Einstellungen");
+    QString labeltext = "Pfad zur SQLite-Datenbank-Datei \n"
+                        "(wenn die Datei noch nicht existiert, wird sie automatisch erstellt):";
+    db_settings_dialog->setLabelText(labeltext);
+    db_settings_dialog->setFileDialogTitle("Datenbank-Datei auswählen");
+    db_settings_dialog->setFileDialogDirPath(databaseDirPath);
+    db_settings_dialog->setFileDialogTypes("Database Files (*.db)");
     db_settings_dialog->open();
     QObject::connect(db_settings_dialog, &QDialog::accepted, this, &MainWindow::getDBPathFromSelector);
     QObject::connect(db_settings_dialog, &QDialog::rejected, this, &MainWindow::cleanUpDBSelector);
@@ -923,9 +931,7 @@ void MainWindow::setupConfigFile()
         //open (create) the file with read/write access:
         configfile.open(QIODevice::ReadWrite);
 
-        //write the default database path to the newly created config file:
-        QTextStream out(&configfile);
-        out << databasePath;
+
 
         configfile.close(); //close connection to the file
     }

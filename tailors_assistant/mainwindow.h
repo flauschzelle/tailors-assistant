@@ -7,7 +7,7 @@
 #include "general.h"
 #include "workpiece.h"
 #include "workpieceselector.h"
-#include "databasesettings.h"
+#include "filepathsettingsdialog.h"
 #include "steptablemodel.h"
 
 namespace Ui {
@@ -93,7 +93,7 @@ private:
 
     QFile configfile;
 
-    DatabaseSettings *db_settings_dialog;
+    FilePathSettingsDialog *db_settings_dialog;
 
     double pricePerHour;
 

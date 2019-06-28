@@ -31,10 +31,10 @@ SOURCES += \
     step.cpp \
     workpieceselector.cpp \
     piecetablemodel.cpp \
-    databasesettings.cpp \
     deletepiecedialog.cpp \
     deletestepdialog.cpp \
-    steptablemodel.cpp
+    steptablemodel.cpp \
+    filepathsettingsdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,14 +43,14 @@ HEADERS += \
     workpieceselector.h \
     piecetablemodel.h \
     general.h \
-    databasesettings.h \
     deletepiecedialog.h \
     deletestepdialog.h \
-    steptablemodel.h
+    steptablemodel.h \
+    filepathsettingsdialog.h
 
 FORMS += \
         mainwindow.ui \
     workpieceselector.ui \
-    databasesettings.ui \
     deletepiecedialog.ui \
-    deletestepdialog.ui
+    deletestepdialog.ui \
+    filepathsettingsdialog.ui
