@@ -32,11 +32,13 @@ public:
 
     void setCurrentPiece(WorkPiece * piece);
 
-
-
 public slots:
+
     void newPiece();
     void newOffer();
+
+    void newPieceFromOffer();
+    void newOfferFromPiece();
 
     void openPieceSelector();
     void openOfferSelector();
@@ -102,6 +104,7 @@ private:
     void fillPieceDataComboBoxes();
     void fillPieceDataUIElements(WorkPiece * piece);
     void connectPieceDataInputs();
+    void disconnectPieceDataInputs();
 
     void fillStepDataComboBoxes();
     void fillStepDataUIElements(Step * step);

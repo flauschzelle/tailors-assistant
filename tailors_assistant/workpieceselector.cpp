@@ -16,12 +16,35 @@ WorkPieceSelector::WorkPieceSelector(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    piece_selection_model = NULL;
+    proxy_model = NULL;
+
     //writeTestDataToDatabase(); //generate test data and fill the database with them
     generateWorkPieceLists(); //get data from the database
 
     setSelectionMode(record); //sets default selection mode
+    setConversionMode(none); //default conversion mode
 
     selectedRowNr = 0; //default value
+    selected_piece = NULL; //default
+}
+
+void WorkPieceSelector::deleteRecordsAndOffers()
+{
+    for (int i = 0; i < all_records.length(); i++)
+    {
+        if (all_records.at(i) != selected_piece)
+        {
+            delete all_records.at(i);
+        }
+    }
+    for (int i = 0; i < all_offers.length(); i++)
+    {
+        if (all_offers.at(i) != selected_piece)
+        {
+            delete all_offers.at(i);
+        }
+    }
 }
 
 WorkPieceSelector::~WorkPieceSelector()
@@ -29,12 +52,17 @@ WorkPieceSelector::~WorkPieceSelector()
     delete ui;
     delete piece_selection_model;
     delete proxy_model;
+    deleteRecordsAndOffers();
 }
 
 // sets the mode for record or offer selection
 void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
 {
     selection_mode = mode;
+    if (piece_selection_model != NULL)
+    {
+        delete piece_selection_model;
+    }
     piece_selection_model = new PieceTableModel();
 
     if (mode == record)
@@ -50,6 +78,10 @@ void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
         ui->label->setText("Angebot zum Öffnen auswählen");
     }
 
+    if (proxy_model != NULL)
+    {
+        delete proxy_model;
+    }
     proxy_model = new QSortFilterProxyModel();
     proxy_model->setSourceModel(piece_selection_model);
     ui->tableView->setModel(proxy_model);
@@ -59,10 +91,16 @@ void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
     QObject::connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &WorkPieceSelector::rowSelectionChanged);
 }
 
+void WorkPieceSelector::setConversionMode(const PieceConversionMode& value)
+{
+    conversion_mode = value;
+}
+
 //generates a list of all workpieces stored in the database
 void WorkPieceSelector::generateWorkPieceLists()
 {
     //clear any existing pieces from the datastructures
+    deleteRecordsAndOffers();
     all_records.clear();
     all_offers.clear();
 
@@ -90,10 +128,14 @@ void WorkPieceSelector::generateWorkPieceLists()
             nextpiece->setStatus(record);
             all_records.append(nextpiece);
         }
-        if (query.value(1).toInt() == offer)
+        else if (query.value(1).toInt() == offer)
         {
             nextpiece->setStatus(offer);
             all_offers.append(nextpiece);
+        }
+        else
+        {
+            printf("piece with invalid status found in database\n");
         }
     }
 }
@@ -195,16 +237,66 @@ void WorkPieceSelector::rowSelectionChanged(const QItemSelection &selected, cons
     }
 }
 
+
 //returns the piece that was selected in the dialog
 WorkPiece* WorkPieceSelector::getSelectedPiece()
 {
-    if (selection_mode == record)
+    if (conversion_mode == none)
     {
-        return all_records.at(selectedRowNr);
+        if (selection_mode == record)
+        {
+            selected_piece = all_records.at(selectedRowNr);
+        }
+        else if (selection_mode == offer)
+        {
+            selected_piece = all_offers.at(selectedRowNr);
+        }
     }
-    else if (selection_mode == offer)
+    if (conversion_mode == offer_to_record)
     {
-        return all_offers.at(selectedRowNr);
+        WorkPiece * piece = all_offers.at(selectedRowNr);
+        piece->loadStepsFromDatabase();
+        piece->setStatus(record);
+        piece->setDate(QDate::currentDate());
+        piece->savePieceToDatabase();
+        selected_piece = piece;
     }
-    return NULL;
+    if (conversion_mode == record_copy_to_offer)
+    {
+        WorkPiece * piece = new WorkPiece();
+        WorkPiece * oldpiece = all_records.at(selectedRowNr);
+        oldpiece->loadStepsFromDatabase();
+
+        //set new values for some piece data:
+        piece->setStatus(offer);
+        piece->setDate(QDate::currentDate());
+
+        //copy piece data from old to new one:
+        piece->setName(oldpiece->getName());
+        piece->setCustomer(oldpiece->getCustomer());
+        piece->setType(oldpiece->getType());
+        piece->setComment(oldpiece->getComment());
+
+        //copy step data from old to new piece:
+        for (int i = 0; i < oldpiece->getSteps().length(); i++)
+        {
+            Step * step = new Step();
+            step->setName(oldpiece->getSteps().at(i)->getName());
+            step->setCount(oldpiece->getSteps().at(i)->getCount());
+            step->setMinutesAll(oldpiece->getSteps().at(i)->getMinutesAll());
+            step->setSeamType(oldpiece->getSteps().at(i)->getSeamType());
+            step->setMaterial(oldpiece->getSteps().at(i)->getMaterial());
+            step->setDetail(oldpiece->getSteps().at(i)->getDetail());
+            step->setComment(oldpiece->getSteps().at(i)->getComment());
+
+            piece->addStep(step);
+        }
+
+        //save the newly generated offer piece:
+        piece->savePieceToDatabase();
+
+        selected_piece = piece;
+    }
+
+    return selected_piece;
 }

@@ -31,6 +31,10 @@ public:
     void generateWorkPieceLists();
     static void writeTestDataToDatabase();
 
+    void setConversionMode(const PieceConversionMode& value);
+
+    void deleteRecordsAndOffers();
+
 public slots:
 
     void rowSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
@@ -39,6 +43,7 @@ private:
     Ui::WorkPieceSelector *ui;
 
     PieceStatusMode selection_mode;
+    PieceConversionMode conversion_mode;
 
     QVector<WorkPiece*> all_records;
     QVector<WorkPiece*> all_offers;
@@ -47,6 +52,7 @@ private:
     QSortFilterProxyModel *proxy_model;
     int selectedRowNr;
 
+    WorkPiece * selected_piece;
 
     static QVector<WorkPiece*> test_records_list;
     static QVector<WorkPiece*> test_offers_list;

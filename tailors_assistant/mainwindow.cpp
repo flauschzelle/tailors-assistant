@@ -50,14 +50,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sumsDisplayLabel->setText(""); //set sums label to empty
 
     //connections to ui:
-    QObject::connect(ui->actionNeues_Werkst_ck, &QAction::triggered, this, &MainWindow::newPiece); //connect signal & slot for new piece menu item
-    QObject::connect(ui->actionNeues_Angebot, &QAction::triggered, this, &MainWindow::newOffer); //connect signal & slot for new offer menu item
+    QObject::connect(ui->actionNeues_Werkst_ck, &QAction::triggered, this, &MainWindow::newPiece);
+    QObject::connect(ui->actionNeues_Angebot, &QAction::triggered, this, &MainWindow::newOffer);
 
-    QObject::connect(ui->actionWerkst_ck_ffnen, &QAction::triggered, this, &MainWindow::openPieceSelector); //connect signal & slot for open piece menu item
-    QObject::connect(ui->actionAngebot_ffnen, &QAction::triggered, this, &MainWindow::openOfferSelector); //connect signal & slot for open offer menu item
+    QObject::connect(ui->actionWerkst_ck_ffnen, &QAction::triggered, this, &MainWindow::openPieceSelector);
+    QObject::connect(ui->actionAngebot_ffnen, &QAction::triggered, this, &MainWindow::openOfferSelector);
 
-    QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings); //connect signal from menu to database settigns dialog
+    QObject::connect(ui->actionWerkst_ck_aus_Angebot, &QAction::triggered, this, &MainWindow::newPieceFromOffer);
+    QObject::connect(ui->actionAngebot_aus_Werkst_ck, &QAction::triggered, this, &MainWindow::newOfferFromPiece);
 
+    QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings);
     QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
     QObject::connect(ui->editStepsPushButton, &QPushButton::clicked, this, &MainWindow::activateStepEdits);
 
@@ -80,6 +82,9 @@ MainWindow::~MainWindow()
     db.close();
     delete ui;
     delete empty_step_list;
+    delete currentPiece;
+    delete steps_model;
+    delete selector;
 }
 
 //reimplementation of closeEvent
@@ -107,8 +112,6 @@ void MainWindow::setInputMode(PieceStatusMode mode)
         ui->deletePiecePushButton->setText("Werkstück löschen");
 
         steps_model->setMode(record);
-        //QStringList record_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Zeit", "Kommentar"};
-        //steps_model->setHorizontalHeaderLabels(record_header_labels);
     }
 
     if (mode == offer)
@@ -119,8 +122,6 @@ void MainWindow::setInputMode(PieceStatusMode mode)
         ui->deletePiecePushButton->setText("Angebot löschen");
 
         steps_model->setMode(offer);
-        //QStringList offer_header_labels = {"#", "Bezeichnung", "Nahttyp", "Material", "Detail", "Filter", "Daten", "min", "med", "avg", "max", "man", "Kommentar"};
-        //steps_model->setHorizontalHeaderLabels(offer_header_labels);
     }
 }
 
@@ -137,9 +138,10 @@ void MainWindow::newPiece()
     {
         currentPiece->savePieceToDatabase();
     }
-    setInputMode(record);
-    setCurrentPiece(new WorkPiece());
-    currentPiece->setStatus(record);
+    //setInputMode(record);
+    WorkPiece * newpiece = new WorkPiece();
+    newpiece->setStatus(record);
+    setCurrentPiece(newpiece);
 }
 
 //slot function to start creating a new offer:
@@ -149,9 +151,42 @@ void MainWindow::newOffer()
     {
         currentPiece->savePieceToDatabase();
     }
-    setInputMode(offer);
-    setCurrentPiece(new WorkPiece());
-    currentPiece->setStatus(offer);
+    //setInputMode(offer);
+    WorkPiece * newpiece = new WorkPiece();
+    newpiece->setStatus(offer);
+    setCurrentPiece(newpiece);
+}
+
+//slot function to convert an existing offer into a new piece
+void MainWindow::newPieceFromOffer()
+{
+    //setInputMode(record);
+    if (selector != NULL)
+        {
+            delete selector;
+        }
+        selector = new WorkPieceSelector(this);
+        selector->setSelectionMode(offer);
+        selector->setConversionMode(offer_to_record);
+        selector->open();
+        QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
+        QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
+}
+
+//slot function to create a new offer from the data of an existing piece
+void MainWindow::newOfferFromPiece()
+{
+    //setInputMode(offer);
+    if (selector != NULL)
+        {
+            delete selector;
+        }
+        selector = new WorkPieceSelector(this);
+        selector->setSelectionMode(record);
+        selector->setConversionMode(record_copy_to_offer);
+        selector->open();
+        QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
+        QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
 }
 
 //slot function for a selection view to open an existing piece:
@@ -163,6 +198,7 @@ void MainWindow::openPieceSelector()
     }
     selector = new WorkPieceSelector(this);
     selector->setSelectionMode(record);
+    selector->setConversionMode(none);
     selector->open();
     QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
     QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
@@ -177,6 +213,7 @@ void MainWindow::openOfferSelector()
     }
     selector = new WorkPieceSelector(this);
     selector->setSelectionMode(offer);
+    selector->setConversionMode(none);
     selector->open();
     QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
     QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
@@ -231,6 +268,12 @@ void MainWindow::openDatabaseSettings()
 //slot function for changing the path to the database
 void MainWindow::changeDatabasePath(QString path)
 {
+    if (currentPiece != NULL)
+    {
+        currentPiece->savePieceToDatabase();
+        setCurrentPiece(NULL);
+    }
+
     db.close(); //close existing db connection
 
     databasePath = path; //set the datbase path to the newly configured path
@@ -390,12 +433,7 @@ void MainWindow::deleteCurrentPiece()
         query.exec();
     }
     //remove current piece data from ui:
-    currentPiece = NULL;
-    steps_model->setDataSource(empty_step_list);
-    ui->editStepsPushButton->setEnabled(true);
-    ui->pieceDataBox->setEnabled(false);
-    ui->stepDataBox->setEnabled(false);
-    ui->resultViewWidget->setEnabled(false);
+    setCurrentPiece(NULL);
 }
 
 void MainWindow::activateStepEdits()
@@ -417,7 +455,7 @@ void MainWindow::activateStepEdits()
     ui->resultViewWidget->setEnabled(true);
     ui->dataTableView->selectRow(stepIndex);
     //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
-    //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 //this will be called when the "next step" button is pressed
@@ -425,6 +463,7 @@ void MainWindow::nextStep()
 {
     currentPiece->saveStepsToDatabase(); //save current input data
     currentPiece->loadStepsFromDatabase(); //reload step data
+    disconnectStepDataInputs(currentPiece->getSteps().at(stepIndex));
     stepIndex = stepIndex + 1;
     //(re-)enable prev button:
     ui->previousStepPushButton->setEnabled(true);
@@ -438,7 +477,7 @@ void MainWindow::nextStep()
     fillStepDataComboBoxes();
     ui->dataTableView->selectRow(stepIndex);
     //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
-    //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 //this will be called when the previous step button is pressed
@@ -449,6 +488,7 @@ void MainWindow::prevStep()
     //go to the previous step only if you're not already at the first one:
     if (stepIndex > 0)
     {
+        disconnectStepDataInputs(currentPiece->getSteps().at(stepIndex));
         stepIndex = stepIndex - 1;
     }
     //disable prev button on the first step
@@ -460,28 +500,46 @@ void MainWindow::prevStep()
     fillStepDataComboBoxes();
     ui->dataTableView->selectRow(stepIndex);
     //fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
-    //connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
 }
 
 void MainWindow::setCurrentPiece(WorkPiece * piece)
 {
+    if (currentPiece != NULL)
+    {
+        disconnectPieceDataInputs();
+    }
+    if (piece != currentPiece)
+    {
+        delete currentPiece;
+    }
+
     currentPiece = piece;
-    currentPiece->loadStepsFromDatabase();
     stepIndex = 0; //reset step index to start at the first step
-    setInputMode(currentPiece->getStatus());
-    //activate ui elements:
-    ui->editStepsPushButton->setEnabled(true);
-    ui->pieceDataBox->setEnabled(true);
-    ui->stepDataBox->setEnabled(false);
-    fillPieceDataComboBoxes();
-    fillPieceDataUIElements(currentPiece);
-    connectPieceDataInputs();
-    //set data source for table view:
-    steps_model->setDataSource(currentPiece->getStepsPointer());
-    ui->dataTableView->resizeColumnsToContents();
     ui->resultViewWidget->setEnabled(false);
-    //pre-calculate the sums
-    setDisplayedSums();
+    ui->stepDataBox->setEnabled(false);
+    ui->editStepsPushButton->setEnabled(true);
+
+    if (piece == NULL)
+    {
+        ui->pieceDataBox->setEnabled(false);
+        steps_model->setDataSource(empty_step_list);
+    }
+    else
+    {
+        currentPiece->loadStepsFromDatabase();
+        setInputMode(currentPiece->getStatus());
+        //activate ui elements:
+        ui->pieceDataBox->setEnabled(true);
+        fillPieceDataComboBoxes();
+        fillPieceDataUIElements(currentPiece);
+        connectPieceDataInputs();
+        //set data source for table view:
+        steps_model->setDataSource(currentPiece->getStepsPointer());
+        ui->dataTableView->resizeColumnsToContents();
+        //pre-calculate the sums
+        setDisplayedSums();
+    }
 }
 
 void MainWindow::setupDatabase()
@@ -502,7 +560,7 @@ void MainWindow::setupDatabase()
 //slot to be called when the statistics of the current step shall be refreshed
 void MainWindow::calculateStepStatistics()
 {
-    if (mode == offer)
+    if (mode == offer && currentPiece->getSteps().length() > 0)
     {
         currentPiece->getSteps().at(stepIndex)->calculateStatistics(currentPiece);
     }
@@ -616,7 +674,7 @@ void MainWindow::fillPieceDataComboBoxes()
     ui->customerComboBox->clear();
     QStringList customers;
     QSqlQuery query;
-    query.exec("SELECT DISTINCT customer FROM pieces");
+    query.exec("SELECT DISTINCT customer FROM pieces ORDER BY customer");
     while (query.next())
     {
         customers.append(query.value(0).toString());
@@ -626,7 +684,7 @@ void MainWindow::fillPieceDataComboBoxes()
 
     ui->pieceTypeComboBox->clear();
     QStringList types;
-    query.exec("SELECT DISTINCT type FROM pieces");
+    query.exec("SELECT DISTINCT type FROM pieces ORDER BY type");
     while (query.next())
     {
         types.append(query.value(0).toString());
@@ -642,6 +700,24 @@ void MainWindow::fillPieceDataUIElements(WorkPiece* piece)
     ui->pieceTypeComboBox->setCurrentText(piece->getType());
     ui->dateEdit->setDate(piece->getDate());
     ui->pieceCommentLineEdit->setText(piece->getComment());
+}
+
+//disconnects ui elements from the current piece
+void MainWindow::disconnectPieceDataInputs()
+{
+    QObject::disconnect(ui->customerComboBox, QOverload<const QString &>::of(&QComboBox::activated),
+                     currentPiece, &WorkPiece::setCustomer);
+    QObject::disconnect(ui->customerComboBox, &QComboBox::editTextChanged, currentPiece, &WorkPiece::setCustomer);
+    QObject::disconnect(ui->pieceNameLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setName);
+    QObject::disconnect(ui->pieceTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated),
+                     currentPiece, &WorkPiece::setType);
+    QObject::disconnect(ui->pieceTypeComboBox, &QComboBox::editTextChanged, currentPiece, &WorkPiece::setType);
+    QObject::disconnect(ui->dateEdit, &QDateEdit::dateChanged, currentPiece, &WorkPiece::setDate);
+    QObject::disconnect(ui->pieceCommentLineEdit, &QLineEdit::textEdited, currentPiece, &WorkPiece::setComment);
+    //refresh the table view when a step is added, deleted or moved:
+    QObject::disconnect(currentPiece, &WorkPiece::stepOrderChanged, steps_model, &StepTableModel::stepOrderChanged);
+    //load the seleceted step when a step is selected from the table:
+    QObject::disconnect(ui->dataTableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::stepSelected);
 }
 
 //connects ui elements to the current piece
@@ -668,7 +744,7 @@ void MainWindow::fillStepDataComboBoxes()
     ui->stepNameComboBox->clear();
     QStringList stepNames;
     QSqlQuery query;
-    query.exec("SELECT DISTINCT name FROM steps");
+    query.exec("SELECT DISTINCT name FROM steps ORDER BY name");
     while (query.next())
     {
         stepNames.append(query.value(0).toString());
@@ -677,7 +753,7 @@ void MainWindow::fillStepDataComboBoxes()
 
     ui->seamTypeComboBox->clear();
     QStringList seamTypes;
-    query.exec("SELECT DISTINCT seam_type FROM steps");
+    query.exec("SELECT DISTINCT seam_type FROM steps ORDER BY seam_type");
     while (query.next())
     {
         seamTypes.append(query.value(0).toString());
@@ -686,7 +762,7 @@ void MainWindow::fillStepDataComboBoxes()
 
     ui->materialComboBox->clear();
     QStringList materials;
-    query.exec("SELECT DISTINCT material FROM steps");
+    query.exec("SELECT DISTINCT material FROM steps ORDER BY material");
     while (query.next())
     {
         materials.append(query.value(0).toString());
@@ -695,7 +771,7 @@ void MainWindow::fillStepDataComboBoxes()
 
     ui->detailComboBox->clear();
     QStringList details;
-    query.exec("SELECT DISTINCT detail FROM steps");
+    query.exec("SELECT DISTINCT detail FROM steps ORDER BY detail");
     while (query.next())
     {
         details.append(query.value(0).toString());

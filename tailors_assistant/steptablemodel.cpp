@@ -117,8 +117,7 @@ QVariant StepTableModel::data(const QModelIndex &index, int role) const
 void StepTableModel::setDataSource(QVector<Step*>* source)
 {
     data_source = source;
-    //emit dataChanged(); //this needs parameters, not sure if it is the right one to use
-
+    emit dataChanged(QModelIndex(), QModelIndex());
 }
 
 PieceStatusMode StepTableModel::getMode() const

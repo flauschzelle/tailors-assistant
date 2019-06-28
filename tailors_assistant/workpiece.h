@@ -14,6 +14,7 @@ class WorkPiece : public QObject
     Q_OBJECT
 public:
     explicit WorkPiece(QObject *parent = nullptr);
+    ~WorkPiece();
 
     int getId() const;
     void setId(int value);
@@ -41,6 +42,9 @@ public:
     void deleteAllSteps();
     void moveStepBack(int index);
     void moveStepForward(int index);
+
+
+    void deleteSteps();
 
 signals:
     void stepOrderChanged();

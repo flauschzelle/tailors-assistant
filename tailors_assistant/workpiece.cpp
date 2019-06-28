@@ -3,7 +3,22 @@
 WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
 {
     id = 0; //initialize id with default value
-    date = QDate(1970,1,1); //initialize date with default value
+    date = QDate::currentDate(); //initialize date with default value
+    status = offer; //default value for status
+}
+
+//destructor
+WorkPiece::~WorkPiece()
+{
+    deleteSteps();
+}
+
+void WorkPiece::deleteSteps()
+{
+    for (int i = 0; i < steps.length(); i++)
+    {
+         delete steps.at(i);
+    }
 }
 
 int WorkPiece::getId() const
@@ -113,6 +128,7 @@ void WorkPiece::deleteStep(int index)
 
 void WorkPiece::deleteAllSteps()
 {
+    deleteSteps();
     steps.clear();
     emit stepOrderChanged();
 }
@@ -174,7 +190,8 @@ void WorkPiece::loadStepsFromDatabase()
         savePieceToDatabase();
     }
     //clear any pre-exisiting steps:
-    steps.clear();
+    deleteSteps(); //delete from memory
+    steps.clear(); //remove from vector
 
     //get data sets from db for all steps of this piece:
     QSqlQuery query;
