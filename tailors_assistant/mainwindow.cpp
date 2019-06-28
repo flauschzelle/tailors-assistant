@@ -12,8 +12,6 @@
 #include <QFile>
 #include <QCloseEvent>
 
-MainWindow* MainWindow::instance = NULL; //initialize the static member variable
-
 // constructor
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -72,8 +70,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->downToolButton, &QToolButton::clicked, this, &MainWindow::stepMovedDown);
 
     QObject::connect(ui->priceDoubleSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &MainWindow::setPricePerHour);
-
-    MainWindow::instance = this;
 }
 
 // destructor
@@ -259,7 +255,7 @@ void MainWindow::initDatabase()
 //slot function for opening the database settings dialog
 void MainWindow::openDatabaseSettings()
 {
-    db_settings_dialog = new FilePathSettingsDialog();
+    db_settings_dialog = new FilePathSettingsDialog(this);
     db_settings_dialog->setTextAndPath(databasePath);
     db_settings_dialog->setWindowTitle("Datenbank-Einstellungen");
     QString labeltext = "Pfad zur SQLite-Datenbank-Datei \n"

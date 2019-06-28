@@ -26,8 +26,6 @@ public:
 
     QString getDatabasePath();
 
-    static MainWindow* instance;
-
     QString getDatabaseDirPath() const;
 
     void setCurrentPiece(WorkPiece * piece);
