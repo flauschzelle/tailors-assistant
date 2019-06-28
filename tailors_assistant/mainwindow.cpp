@@ -516,9 +516,6 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
 
     currentPiece = piece;
     stepIndex = 0; //reset step index to start at the first step
-    ui->resultViewWidget->setEnabled(false);
-    ui->stepDataBox->setEnabled(false);
-    ui->editStepsPushButton->setEnabled(true);
 
     if (piece == NULL)
     {
@@ -540,6 +537,11 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
         //pre-calculate the sums
         setDisplayedSums();
     }
+
+    ui->resultViewWidget->setEnabled(false);
+    ui->stepDataBox->setEnabled(false);
+    ui->editStepsPushButton->setEnabled(true);
+
 }
 
 void MainWindow::setupDatabase()

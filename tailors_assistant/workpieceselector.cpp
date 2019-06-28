@@ -87,6 +87,16 @@ void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
     ui->tableView->setModel(proxy_model);
     ui->tableView->resizeColumnsToContents();
 
+    //sort the table view by date, descending:
+    if (mode == record)
+    {
+        ui->tableView->sortByColumn(3, Qt::DescendingOrder);
+    }
+    if (mode == offer)
+    {
+        ui->tableView->sortByColumn(2, Qt::DescendingOrder);
+    }
+
     //connect the selection changed signal to the slot that registers the selected row:
     QObject::connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &WorkPieceSelector::rowSelectionChanged);
 }
