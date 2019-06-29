@@ -2,9 +2,16 @@
 
 WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
 {
-    id = 0; //initialize id with default value
-    date = QDate::currentDate(); //initialize date with default value
-    status = offer; //default value for status
+    //initialize with default values:
+    id = 0;
+    date = QDate::currentDate();
+    status = offer;
+    customer = "";
+    name = "";
+    type = "";
+    comment = "";
+    //picture = NULL;
+    sums = "";
 }
 
 //destructor
@@ -159,6 +166,11 @@ QString WorkPiece::getName() const
 void WorkPiece::setName(const QString& value)
 {
     name = value;
+}
+
+void WorkPiece::setSums(const QString& value)
+{
+    sums = value;
 }
 
 //called from the main window when a new database is set up
@@ -343,6 +355,8 @@ bool WorkPiece::isEmpty()
 //parameter is the target filename including the complete path
 bool WorkPiece::exportToTextfile(const QString filename)
 {
+    QFile exportfile;
+
     exportfile.setFileName(filename);
 
     if (!exportfile.exists()) //if the file does not exist yet
@@ -373,11 +387,140 @@ bool WorkPiece::exportToTextfile(const QString filename)
         return false;
     }
 
+    QString exportText = getExportableText();
+
     //write "defaultText" to the file:
     QTextStream out(&exportfile);
-    out << "defaultText"; //HERE WILL BE THE BIG PART LATER!!!!!
+    out << exportText;
 
     //close the file connection and return:
     exportfile.close();
     return true;
 }
+
+QString WorkPiece::getExportableText()
+{
+    QString text = "Tailor's Assistant - ";
+
+    if (status == record)
+    {
+        text += "Werkstück\n"
+                "==============================\n\n";
+    }
+    if (status == offer)
+    {
+        text += "Angebot\n"
+                "============================\n\n";
+    }
+
+    text += customer + " – " + name + " – " + date.toString("dd.MM.yyyy") + "\n";
+    text += "Typ: " + type + "\n";
+    text += "Anmerkungen: \n" + comment + "\n\n";
+
+    //datastructure for counting how wide the colums should be:
+    int maxletters[12];
+    maxletters[0] = 3; //max length of count
+    maxletters[1] = 8; //max length of name
+    maxletters[2] = 8; //max length of seam type
+    maxletters[3] = 9; //max length of material
+    maxletters[4] = 7; //max length of detail
+    maxletters[5] = 6; //length of filters
+    maxletters[6] = 3; //max length of base data
+    maxletters[7] = 4; //max length of min time
+    maxletters[8] = 4; //max length of med time
+    maxletters[9] = 4; //max length of avg time
+    maxletters[10] = 4; //max length of max time
+    maxletters[11] = 5; //max length of man time
+
+    for (int i = 0; i < steps.length(); i++)
+    {
+        Step* step = steps.at(i);
+        if (step->getName().length() > maxletters[1]) maxletters[1] = step->getName().length();
+        if (step->getSeamType().length() > maxletters[2]) maxletters[2] = step->getSeamType().length();
+        if (step->getMaterial().length() > maxletters[3]) maxletters[3] = step->getMaterial().length();
+        if (step->getDetail().length() > maxletters[4]) maxletters[4] = step->getDetail().length();
+    }
+
+    QString tc = "#   ";
+    QString tn = "Schritt";
+    while (tn.length() <= maxletters[1]) {tn += " ";}
+    QString ts = "Nahttyp";
+    while (ts.length() <= maxletters[2]) {ts += " ";}
+    QString tm = "Material";
+    while (tm.length() <= maxletters[3]) {tm += " ";}
+    QString td = "Detail";
+    while (td.length() <= maxletters[4]) {td += " ";}
+
+    text += tc + tn + ts + tm + td;
+
+    if (status == offer)
+    {
+        QString tf = "Filter";
+        while (tf.length() <= maxletters[5]) {tf += " ";}
+        QString tbd = "db";
+        while (tbd.length() <= maxletters[6]) {tbd += " ";}
+        QString tmin = "min";
+        while (tmin.length() <= maxletters[7]) {tmin += " ";}
+        QString tmed = "med";
+        while (tmed.length() <= maxletters[8]) {tmed += " ";}
+        QString tavg = "avg";
+        while (tavg.length() <= maxletters[9]) {tavg += " ";}
+        QString tmax = "max";
+        while (tmax.length() <= maxletters[10]) {tmax += " ";}
+        QString tman = "man";
+        while (tman.length() <= maxletters[11]) {tman += " ";}
+
+        text += tf + tbd + tmin + tmed + tavg + tmax + tman;
+    }
+    if (status == record)
+    {
+        QString tt = "Zeit";
+        while (tt.length() <= maxletters[11]) {tt += " ";}
+
+        text += tt;
+    }
+
+    text += "Kommentar\n\n";
+
+    for (int i = 0; i < steps.length(); i++)
+    {
+        Step* step = steps.at(i);
+        QString sc = QString::number(step->getCount());
+        while (sc.length() <= maxletters[0]) {sc += " ";}
+        QString sn = step->getName();
+        while (sn.length() <= maxletters[1]) {sn += " ";}
+        QString sst = step->getSeamType();
+        while (sst.length() <= maxletters[2]) {sst += " ";}
+        QString smat = step->getMaterial();
+        while (smat.length() <= maxletters[3]) {smat += " ";}
+        QString sdet = step->getDetail();
+        while (sdet.length() <= maxletters[4]) {sdet += " ";}
+        QString filt = step->getFilters();
+        while (filt.length() <= maxletters[5]) {filt += " ";}
+        QString sbd = QString::number(step->getBaseDatasets());
+        while (sbd.length() <= maxletters[6]) {sbd += " ";}
+        QString smin = QString::number(step->getMin());
+        while (smin.length() <= maxletters[7]) {smin += " ";}
+        QString smed = QString::number(step->getMed());
+        while (smed.length() <= maxletters[8]) {smed += " ";}
+        QString savg = QString::number(step->getAvg());
+        while (savg.length() <= maxletters[9]) {savg += " ";}
+        QString smax = QString::number(step->getMax());
+        while (smax.length() <= maxletters[10]) {smax += " ";}
+        QString sman = QString::number(step->getMinutesAll());
+        while (sman.length() <= maxletters[11]) {sman += " ";}
+        QString scomm = step->getComment();
+
+        text += sc + sn + sst + smat + sdet;
+        if (status == offer)
+        {
+            text += filt + sbd + smin + smed + savg + smax;
+        }
+        text += sman + scomm + "\n";
+    }
+
+    text += "\n" + sums;
+
+    return text;
+}
+

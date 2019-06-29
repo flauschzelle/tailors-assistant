@@ -46,6 +46,10 @@ public:
 
     void deleteSteps();
 
+    void setSums(const QString& value);
+
+    QString getExportableText();
+
 signals:
     void stepOrderChanged();
 
@@ -72,7 +76,7 @@ private:
 
     QVector<Step*> steps;
 
-    QFile exportfile;
+    QString sums;
 };
 
 #endif // WORKPIECE_H

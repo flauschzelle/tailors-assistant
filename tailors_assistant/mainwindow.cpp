@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     selector = NULL; //initialize with default value
     db_settings_dialog = NULL; //initialize with default value
     export_textfile_dialog = NULL; //initialize with default value
-    lastUsedExportPath = QDir::homePath() + "/tailors_assistant/werkstueck.txt"; //initialize with default value
+    lastUsedExportPath = QDir::homePath() + "/tmp/tailors_assistant/werkstueck.txt"; //initialize with default value
     pricePerHour = 35.70; //default price
     ui->priceDoubleSpinBox->setValue(pricePerHour); //show default price
     ui->sumsDisplayLabel->setText(""); //set sums label to empty
@@ -647,8 +647,6 @@ void MainWindow::setDisplayedSums()
         sums = "" + QString::number(sum_minutes) + " min  |  " + QString::number(sum_hours) + "," +
                QString::number(sum_hours_decimal) + " h  |  " + QString::number(priceInEuro) + "," +
                QString::number(priceInEuroCents) + " €";
-
-         ui->sumsDisplayLabel->setText(sums);
     }
     if (mode == offer)
     {
@@ -690,34 +688,40 @@ void MainWindow::setDisplayedSums()
             QString prefix = "";
             switch (j) {
                 case 0:
-                    prefix = "min:    ";
+                    prefix = "min:  ";
                     break;
                 case 1:
-                    prefix = "\nmed:    ";
+                    prefix = "\nmed:  ";
                     break;
                 case 2:
-                    prefix = "\navg:    ";
+                    prefix = "\navg:  ";
                     break;
                 case 3:
-                    prefix = "\nmax:    ";
+                    prefix = "\nmax:  ";
                     break;
                 case 4:
-                    prefix = "\nman:    ";
+                    prefix = "\nman:  ";
                     break;
                 default:
-                    prefix = "\nman:    ";
+                    prefix = "\nman:  ";
                     break;
             }
-            QString sum = prefix + QString::number(sum_minutes) + " min  |  " + QString::number(sum_hours) + "," +
-                   QString::number(sum_hours_decimal) + " h  |  " + QString::number(priceInEuro) + "," +
+
+            QString smin = QString::number(sum_minutes);
+            while (smin.length() < 4) {smin = " " + smin;}
+            QString shr = QString::number(sum_hours);
+            while (shr.length() < 2) {shr = " " + shr;}
+            QString seur = QString::number(priceInEuro);
+            while (seur.length() < 4) {seur = " " + seur;}
+
+            QString sum = prefix + smin + " min  |  " + shr + "," +
+                   QString::number(sum_hours_decimal) + " h  |  " + seur + "," +
                    QString::number(priceInEuroCents) + " €";
             sums = sums + sum;
-
         }
-
-        ui->sumsDisplayLabel->setText(sums);
     }
-
+    ui->sumsDisplayLabel->setText(sums);
+    currentPiece->setSums(sums); //give the piece its sums for file export purposes
 }
 
 //fill the comboBoxes with data from the db:
