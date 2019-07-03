@@ -601,12 +601,12 @@ void MainWindow::setupDatabase()
     Step::setupTable();
 
     //fill the new database with test data, if it is empty:
-    QSqlQuery query;
-    query.exec("SELECT * FROM pieces");
-    if (!query.next())
-    {
-        WorkPieceSelector::writeTestDataToDatabase();
-    }
+    //QSqlQuery query;
+    //query.exec("SELECT * FROM pieces");
+    //if (!query.next())
+    //{
+        //WorkPieceSelector::writeTestDataToDatabase();
+    //}
 }
 
 //slot to be called when the statistics of the current step shall be refreshed

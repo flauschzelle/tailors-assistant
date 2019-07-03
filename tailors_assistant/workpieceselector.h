@@ -23,13 +23,10 @@ public:
     ~WorkPieceSelector();
 
     void setSelectionMode(PieceStatusMode mode);
-    static void generateRecordsList();
-    static void generateOffersList();
 
     WorkPiece* getSelectedPiece();
 
     void generateWorkPieceLists();
-    static void writeTestDataToDatabase();
 
     void setConversionMode(const PieceConversionMode& value);
 
@@ -53,9 +50,6 @@ private:
     int selectedRowNr;
 
     WorkPiece * selected_piece;
-
-    static QVector<WorkPiece*> test_records_list;
-    static QVector<WorkPiece*> test_offers_list;
 
 };
 
