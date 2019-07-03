@@ -308,7 +308,8 @@ void MainWindow::openAboutDialog()
     about_dialog = new AboutDialog(this);
     about_dialog->setTitle("Über Tailor's Assistant");
     about_dialog->setVersionText(version);
-    about_dialog->setInfoText("Entwickelt von <a href=\"http://metakiki.net/\">Kirstin Rohwer</a>.<br>Mehr Info auf der <a href=\"http://metakiki.net/tailors-assistant/\">Website</a>.");
+    about_dialog->setInfoText("Entwickelt von <a href=\"http://metakiki.net/\">Kirstin Rohwer</a>.<br>"
+                              "Mehr Info auf der <a href=\"http://metakiki.net/tailors-assistant/\">Website</a>.");
     about_dialog->open();
     QObject::connect(about_dialog, &QDialog::accepted, [=](){ delete about_dialog; });
     QObject::connect(about_dialog, &QDialog::rejected, [=](){ delete about_dialog; });
