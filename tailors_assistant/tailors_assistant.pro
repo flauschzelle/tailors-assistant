@@ -54,3 +54,8 @@ FORMS += \
     deletepiecedialog.ui \
     deletestepdialog.ui \
     filepathsettingsdialog.ui
+
+DISTFILES +=
+
+RESOURCES += \
+    resources.qrc

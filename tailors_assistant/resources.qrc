@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/resources">
+        <file>tailors-assistant.svg</file>
+        <file>tailors-assistant-symbolic.svg</file>
+    </qresource>
+</RCC>
