@@ -892,9 +892,17 @@
     </property>
     <addaction name="actionDatenbank_Einstellungen"/>
    </widget>
+   <widget class="QMenu" name="menuHilfe">
+    <property name="title">
+     <string>Hi&amp;lfe</string>
+    </property>
+    <addaction name="actionOnline_Hilfe"/>
+    <addaction name="action_ber_Tailor_s_Assistant"/>
+   </widget>
    <addaction name="menuWerkst_ck"/>
    <addaction name="menuModus"/>
    <addaction name="menuDatenbank"/>
+   <addaction name="menuHilfe"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNeues_Werkst_ck">
@@ -942,6 +950,19 @@
    </property>
    <property name="text">
     <string>Angebot aus &amp;Werkstück importieren</string>
+   </property>
+  </action>
+  <action name="actionOnline_Hilfe">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Online-Hilfe</string>
+   </property>
+  </action>
+  <action name="action_ber_Tailor_s_Assistant">
+   <property name="text">
+    <string>Über Tailor's Assistant</string>
    </property>
   </action>
  </widget>

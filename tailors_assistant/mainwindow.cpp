@@ -6,6 +6,7 @@
 #include "deletepiecedialog.h"
 #include "deletestepdialog.h"
 #include "steptablemodel.h"
+#include "aboutdialog.h"
 
 #include <QStandardItemModel>
 #include <QStringList>
@@ -23,6 +24,9 @@ MainWindow::MainWindow(QWidget *parent) :
     setupDatabase();
     fillPieceDataComboBoxes();
 
+    //set version:
+    version = "Version 0.1.0";
+
     //model for table view:
     empty_step_list = new QVector<Step*>();
 
@@ -33,17 +37,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->dataTableView->setModel(steps_model);
     ui->dataTableView->resizeColumnsToContents();
 
-    //visibility and default values:
+    //default visibility:
     ui->resultViewWidget->setEnabled(false);
 
     ui->pieceDataBox->setEnabled(false);
     ui->stepDataBox->setEnabled(false);
     setInputMode(record); //default value for input mode
-    currentPiece = NULL; //default value for piece pointer
-    stepIndex = 0; //default value for step index
-    selector = NULL; //initialize with default value
-    db_settings_dialog = NULL; //initialize with default value
-    export_textfile_dialog = NULL; //initialize with default value
+
+    //init with default/null values:
+    currentPiece = NULL;
+    stepIndex = 0;
+
+    selector = NULL;
+    about_dialog = NULL;
+    db_settings_dialog = NULL;
+    export_textfile_dialog = NULL;
+
     lastUsedExportPath = QDir::homePath() + "/tmp/tailors_assistant/werkstueck.txt"; //initialize with default value
     pricePerHour = 35.70; //default price
     ui->priceDoubleSpinBox->setValue(pricePerHour); //show default price
@@ -60,6 +69,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionAngebot_aus_Werkst_ck, &QAction::triggered, this, &MainWindow::newOfferFromPiece);
 
     QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings);
+
+    QObject::connect(ui->action_ber_Tailor_s_Assistant, &QAction::triggered, this, &MainWindow::openAboutDialog);
+
     QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
     QObject::connect(ui->editStepsPushButton, &QPushButton::clicked, this, &MainWindow::activateStepEdits);
 
@@ -289,6 +301,17 @@ void MainWindow::getExportPathFromSelector()
     }
     delete export_textfile_dialog;
     export_textfile_dialog = NULL; //re-initialize selector to null pointer
+}
+
+void MainWindow::openAboutDialog()
+{
+    about_dialog = new AboutDialog(this);
+    about_dialog->setTitle("Über Tailor's Assistant");
+    about_dialog->setVersionText(version);
+    about_dialog->setInfoText("Entwickelt von <a href=\"http://metakiki.net/\">Kirstin Rohwer</a>.<br>Mehr Info auf der <a href=\"http://metakiki.net/tailors-assistant/\">Website</a>.");
+    about_dialog->open();
+    QObject::connect(about_dialog, &QDialog::accepted, [=](){ delete about_dialog; });
+    QObject::connect(about_dialog, &QDialog::rejected, [=](){ delete about_dialog; });
 }
 
 //slot

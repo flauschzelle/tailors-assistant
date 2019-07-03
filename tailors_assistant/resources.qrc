@@ -3,5 +3,6 @@
         <file>tailors-assistant.svg</file>
         <file>tailors-assistant-symbolic.svg</file>
         <file>tailors-assistant-black-outlines.svg</file>
+        <file>tailors-assistant-black-outlines-with-text-as-path.svg</file>
     </qresource>
 </RCC>

@@ -34,7 +34,8 @@ SOURCES += \
     deletepiecedialog.cpp \
     deletestepdialog.cpp \
     steptablemodel.cpp \
-    filepathsettingsdialog.cpp
+    filepathsettingsdialog.cpp \
+    aboutdialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -46,14 +47,16 @@ HEADERS += \
     deletepiecedialog.h \
     deletestepdialog.h \
     steptablemodel.h \
-    filepathsettingsdialog.h
+    filepathsettingsdialog.h \
+    aboutdialog.h
 
 FORMS += \
         mainwindow.ui \
     workpieceselector.ui \
     deletepiecedialog.ui \
     deletestepdialog.ui \
-    filepathsettingsdialog.ui
+    filepathsettingsdialog.ui \
+    aboutdialog.ui
 
 DISTFILES +=
 

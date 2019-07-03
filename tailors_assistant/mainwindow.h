@@ -11,6 +11,7 @@
 #include "workpieceselector.h"
 #include "filepathsettingsdialog.h"
 #include "steptablemodel.h"
+#include "aboutdialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -73,11 +74,15 @@ public slots:
     void cleanUpExportSelector();
     void getExportPathFromSelector();
 
+    void openAboutDialog();
+
 protected:
     void closeEvent(QCloseEvent* event) override;
 
 private:
     Ui::MainWindow *ui;
+
+    QString version;
 
     PieceStatusMode mode;
 
@@ -96,6 +101,8 @@ private:
     QString databaseDirPath;
 
     QFile configfile;
+
+    AboutDialog* about_dialog;
 
     FilePathSettingsDialog *db_settings_dialog;
     FilePathSettingsDialog *export_textfile_dialog;
