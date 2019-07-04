@@ -248,7 +248,8 @@ void MainWindow::getWorkpieceFromSelector()
     setCurrentPiece(selector->getSelectedPiece());
     delete selector;
     selector = NULL; //re-initialize selector to null pointer
-    printf("selected piece: %s (%d)\n", currentPiece->getName().toStdString().c_str(), currentPiece->getId());
+    //for debugging:
+    //printf("selected piece: %s (%d)\n", currentPiece->getName().toStdString().c_str(), currentPiece->getId());
 }
 
 //slot function for cleaning up the selector window's object

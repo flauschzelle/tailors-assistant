@@ -236,7 +236,8 @@ void WorkPiece::loadStepsFromDatabase()
     bool z = query.exec();
     if (z)
     {
-        printf("successfully loaded steps from db.\n");
+        //for debugging:
+        //printf("successfully loaded steps from db.\n");
     }
     else
     {
@@ -265,7 +266,8 @@ void WorkPiece::loadStepsFromDatabase()
         }
 
         steps.append(nextStep);
-        printf("loaded step: %s (%d)\n", nextStep->getName().toStdString().c_str(), nextStep->getId());
+        //for debugging:
+        //printf("loaded step: %s (%d)\n", nextStep->getName().toStdString().c_str(), nextStep->getId());
     }
 }
 
@@ -281,7 +283,8 @@ void WorkPiece::saveStepsToDatabase()
     bool x = query.exec();
     if (x)
     {
-        printf("successfully deleted step(s) from db.\n");
+        //for debugging:
+        //printf("successfully deleted step(s) from db.\n");
     }
     else
     {
@@ -311,7 +314,8 @@ void WorkPiece::saveStepsToDatabase()
         bool y = query.exec();
         if (y)
         {
-            printf("added %d new step to db: %s (%d)\n", y, s->getName().toStdString().c_str(), s->getId());
+            //for debugging:
+            //printf("added %d new step to db: %s (%d)\n", y, s->getName().toStdString().c_str(), s->getId());
         }
         else
         {
@@ -379,7 +383,7 @@ void WorkPiece::savePieceToDatabase()
     {
         id = query.lastInsertId().toInt();
         //for debugging:
-        printf("Inserted new row into pieces table: %s (%d)\n", name.toStdString().c_str(), id);
+        //printf("Inserted new row into pieces table: %s (%d)\n", name.toStdString().c_str(), id);
     }
 
     saveStepsToDatabase();
