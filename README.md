@@ -34,8 +34,10 @@ Ein Tool, das bei der Abschätzung von Arbeitszeiten für die Preiskalkulation i
 ### Welche externen Bibliotheken/Tools werden benutzt und wofür?
 (mindestens eine externe Bibliothek muss verwendet werden)
 - Qt für grafische Oberfläche
-- für Datenbank-Anbindung
+- SQLite (via Qt) für Datenbank-Anbindung
 
 ### Welche besonderen Anforderungen ergeben sich?
 (z.B. komplexe Berechnungen in Echtzeit, 
 effiziente Speicherverwaltung/Verarbeitung großer Datenmengen)
+
+- Interaktion zwischen den verschiedenen Teilen des GUI und den Daten aus der Datenbank: angezeigte und gespeicherte Daten sollen möglichst synchron/aktuell gehalten werden, aber die Anzahl der Datenbankzugriffe soll dabei nicht unnötig groß werden.
