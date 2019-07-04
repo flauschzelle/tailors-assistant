@@ -2,6 +2,7 @@
 #define DATABASESETTINGS_H
 
 #include <QDialog>
+#include "general.h"
 
 namespace Ui {
 class FilePathSettingsDialog;
@@ -25,10 +26,14 @@ public:
 
     void setFileDialogTypes(const QString& value);
 
+    void setMode(const FileDialogMode& value);
+
 public slots:
     void setPath(const QString &text);
     void setPathFromFilesystem();
 
+    void setLabelPicture(const QPixmap& picture);
+    void setPictureLabelVisibility(bool visible);
 private:
     Ui::FilePathSettingsDialog *ui;
 
@@ -36,6 +41,8 @@ private:
     QString fileDialogTitle;
     QString fileDialogDirPath;
     QString fileDialogTypes;
+
+    FileDialogMode mode;
 };
 
 #endif // DATABASESETTINGS_H

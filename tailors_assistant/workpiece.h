@@ -64,6 +64,8 @@ public slots:
 
     bool exportToTextfile(const QString filename);
 
+    void setPictureFromFile(QString filename);
+    void deletePicture();
 private:
     int id;
     PieceStatusMode status;
@@ -73,6 +75,7 @@ private:
     QString comment;
     QDate date;
     QPixmap picture;
+    int max_picture_size;
 
     QVector<Step*> steps;
 

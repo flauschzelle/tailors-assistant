@@ -12,6 +12,7 @@
 #include "filepathsettingsdialog.h"
 #include "steptablemodel.h"
 #include "aboutdialog.h"
+#include "deletepicturedialog.h"
 
 namespace Ui {
 class MainWindow;
@@ -76,6 +77,10 @@ public slots:
 
     void openAboutDialog();
 
+    void tryToDeletePicture();
+    void openPictureUploadDialog();
+    void getPicturePathFromSelector();
+    void cleanUpPictureSelector();
 protected:
     void closeEvent(QCloseEvent* event) override;
 
@@ -106,8 +111,10 @@ private:
 
     FilePathSettingsDialog *db_settings_dialog;
     FilePathSettingsDialog *export_textfile_dialog;
+    FilePathSettingsDialog *picture_upload_dialog;
 
     QString lastUsedExportPath;
+    QString lastUsedPicturePath;
 
     double pricePerHour;
 

@@ -48,6 +48,30 @@ QVariant PieceTableModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
+    //decoration (picture, is only defined for col 0 in record mode):
+    if (role == Qt::DecorationRole)
+    {
+        WorkPiece* data_row = data_source->at(index.row());
+
+        if (mode == record)
+        {
+            switch (index.column()) {
+                case 0:
+                    if (data_row->getPicture().isNull())
+                    {
+                        return QVariant(); //null variant
+                    }
+                    else
+                    {
+                        return QVariant(data_row->getPicture().scaledToHeight(40));
+                    }
+                default:
+                    return QVariant(); //null variant
+            }
+        }
+    }
+
+    //display text:
     if (role == Qt::DisplayRole)
     {
         WorkPiece* data_row = data_source->at(index.row());
@@ -56,7 +80,14 @@ QVariant PieceTableModel::data(const QModelIndex &index, int role) const
         {
             switch (index.column()) {
                 case 0:
-                    return ("(kein)");
+                    if (data_row->getPicture().isNull())
+                    {
+                        return ("(kein)");
+                    }
+                    else
+                    {
+                        return QVariant(data_row->getPicture().scaledToHeight(40));
+                    }
                 case 1:
                     return data_row->getName();
                 case 2:

@@ -276,7 +276,7 @@ void Step::calculateStatsPart(bool median, WorkPiece * piece)
     }
 
 
-    printf ("%s\n", q.toStdString().c_str()); //for debugging--------------------------------------
+    //printf ("%s\n", q.toStdString().c_str()); //for debugging
 
     query.prepare(q);
     query.bindValue(":pid", piece->getId());

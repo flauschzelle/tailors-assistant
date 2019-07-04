@@ -52,8 +52,11 @@ MainWindow::MainWindow(QWidget *parent) :
     about_dialog = NULL;
     db_settings_dialog = NULL;
     export_textfile_dialog = NULL;
+    picture_upload_dialog = NULL;
 
     lastUsedExportPath = QDir::homePath() + "/tmp/tailors_assistant/werkstueck.txt"; //initialize with default value
+    lastUsedPicturePath = QDir::homePath(); //initialize with default value
+
     pricePerHour = 35.70; //default price
     ui->priceDoubleSpinBox->setValue(pricePerHour); //show default price
     ui->sumsDisplayLabel->setText(""); //set sums label to empty
@@ -71,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings);
 
     QObject::connect(ui->action_ber_Tailor_s_Assistant, &QAction::triggered, this, &MainWindow::openAboutDialog);
+
+    QObject::connect(ui->addPictureToolButton, &QToolButton::clicked, this, &MainWindow::openPictureUploadDialog);
+    QObject::connect(ui->deletePictureToolButton, &QToolButton::clicked, this, &MainWindow::tryToDeletePicture);
 
     QObject::connect(ui->deletePiecePushButton, &QPushButton::clicked, this, &MainWindow::tryToDeleteCurrentPiece);
     QObject::connect(ui->editStepsPushButton, &QPushButton::clicked, this, &MainWindow::activateStepEdits);
@@ -278,6 +284,7 @@ void MainWindow::openFileExportDialog()
                         "(falls die Datei bereits existiert, wird der Inhalt überschrieben):";
     export_textfile_dialog->setLabelText(labeltext);
     export_textfile_dialog->setFileDialogTitle("Textdatei zum Export auswählen");
+    export_textfile_dialog->setMode(saveFile);
     export_textfile_dialog->setFileDialogDirPath(QFileInfo(lastUsedExportPath).absolutePath());
     export_textfile_dialog->setFileDialogTypes("Text Files (*.txt)");
     export_textfile_dialog->open();
@@ -298,9 +305,67 @@ void MainWindow::getExportPathFromSelector()
         {
             QMessageBox::critical(this, "Fehler", "Die Datei konnte nicht gespeichert werden.");
         }
+        lastUsedExportPath = path; //remember the path for next time
     }
     delete export_textfile_dialog;
     export_textfile_dialog = NULL; //re-initialize selector to null pointer
+}
+
+//slot
+void MainWindow::cleanUpExportSelector()
+{
+    delete export_textfile_dialog;
+    export_textfile_dialog = NULL; //re-initialize selector to null pointer
+}
+
+//slot function to open a dialog for uploading a picture
+void MainWindow::openPictureUploadDialog()
+{
+    picture_upload_dialog = new FilePathSettingsDialog(this);
+    picture_upload_dialog->setTextAndPath(lastUsedPicturePath);
+    picture_upload_dialog->setWindowTitle("Bild aus Datei einfügen");
+    QString labeltext = "Bild aus dieser Datei laden:";
+    picture_upload_dialog->setLabelText(labeltext);
+    picture_upload_dialog->setFileDialogTitle("Bild-Datei auswählen");
+    picture_upload_dialog->setMode(openPicture);
+    picture_upload_dialog->setPictureLabelVisibility(true);
+    picture_upload_dialog->setFileDialogDirPath(QFileInfo(lastUsedPicturePath).absolutePath());
+    picture_upload_dialog->setFileDialogTypes("JPEG Image Files (*.jpg *.jpeg *.JPG *.JPEG)");
+    picture_upload_dialog->open();
+    QObject::connect(picture_upload_dialog, &QDialog::accepted, this, &MainWindow::getPicturePathFromSelector);
+    QObject::connect(picture_upload_dialog, &QDialog::rejected, this, &MainWindow::cleanUpPictureSelector);
+}
+
+//slot
+void MainWindow::getPicturePathFromSelector()
+{
+    QString path = picture_upload_dialog->getNewPath();
+    if (currentPiece != NULL && path != (""))
+    {
+        currentPiece->savePieceToDatabase(); //auto-save for security
+        currentPiece->setPictureFromFile(path); //then set picture
+        ui->pictureDisplayLabel->setPixmap(currentPiece->getPicture()); //display the picture
+        lastUsedPicturePath = path; //remember the path for next time
+    }
+    delete picture_upload_dialog;
+    picture_upload_dialog = NULL; //re-initialize selector to null pointer
+}
+
+//slot
+void MainWindow::cleanUpPictureSelector()
+{
+    delete picture_upload_dialog;
+    picture_upload_dialog = NULL; //re-initialize selector to null pointer
+}
+
+//public slot for the delete picture button to use
+void MainWindow::tryToDeletePicture()
+{
+    DeletePictureDialog * dpd = new DeletePictureDialog(this);
+    dpd->open();
+    QObject::connect(dpd, &QDialog::accepted, currentPiece, &WorkPiece::deletePicture);
+    QObject::connect(dpd, &QDialog::accepted, ui->pictureDisplayLabel, &QLabel::clear);
+    QObject::connect(dpd, &QDialog::rejected, [=](){ delete dpd; });
 }
 
 void MainWindow::openAboutDialog()
@@ -315,13 +380,6 @@ void MainWindow::openAboutDialog()
     QObject::connect(about_dialog, &QDialog::rejected, [=](){ delete about_dialog; });
 }
 
-//slot
-void MainWindow::cleanUpExportSelector()
-{
-    delete export_textfile_dialog;
-    export_textfile_dialog = NULL; //re-initialize selector to null pointer
-}
-
 //slot function for opening the database settings dialog
 void MainWindow::openDatabaseSettings()
 {
@@ -332,6 +390,7 @@ void MainWindow::openDatabaseSettings()
                         "(wenn die Datei noch nicht existiert, wird sie automatisch erstellt):";
     db_settings_dialog->setLabelText(labeltext);
     db_settings_dialog->setFileDialogTitle("Datenbank-Datei auswählen");
+    db_settings_dialog->setMode(saveFile);
     db_settings_dialog->setFileDialogDirPath(databaseDirPath);
     db_settings_dialog->setFileDialogTypes("Database Files (*.db)");
     db_settings_dialog->open();
@@ -399,7 +458,7 @@ QString MainWindow::getDatabaseDirPath() const
 //public slot for the delete current step button to use
 void MainWindow::tryToDeleteCurrentStep()
 {
-    DeleteStepDialog *dsd = new DeleteStepDialog();
+    DeleteStepDialog *dsd = new DeleteStepDialog(this);
     dsd->open();
     QObject::connect(dsd, &QDialog::accepted, this, &MainWindow::deleteCurrentStep);
     QObject::connect(dsd, &QDialog::rejected, [=](){ delete dsd; });
@@ -780,6 +839,14 @@ void MainWindow::fillPieceDataUIElements(WorkPiece* piece)
     ui->pieceTypeComboBox->setCurrentText(piece->getType());
     ui->dateEdit->setDate(piece->getDate());
     ui->pieceCommentLineEdit->setText(piece->getComment());
+    if (!piece->getPicture().isNull())
+    {
+        ui->pictureDisplayLabel->setPixmap(piece->getPicture());
+    }
+    else
+    {
+        ui->pictureDisplayLabel->clear();
+    }
 }
 
 //disconnects ui elements from the current piece

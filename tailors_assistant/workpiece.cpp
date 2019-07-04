@@ -3,6 +3,8 @@
 WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
 {
     //initialize with default values:
+    max_picture_size = 120;
+
     id = 0;
     date = QDate::currentDate();
     status = offer;
@@ -10,7 +12,7 @@ WorkPiece::WorkPiece(QObject *parent) : QObject(parent)
     name = "";
     type = "";
     comment = "";
-    //picture = NULL;
+    picture = QPixmap(); //makes NULL pixmap
     sums = "";
 }
 
@@ -109,6 +111,28 @@ QPixmap WorkPiece::getPicture() const
 void WorkPiece::setPicture(const QPixmap& value)
 {
     picture = value;
+}
+
+void WorkPiece::setPictureFromFile(QString filename)
+{
+    picture = QPixmap(filename);
+
+    //adapt size:
+    int w = picture.width();
+    int h = picture.height();
+    if (w <= h)
+    {
+        picture = picture.scaledToHeight(max_picture_size);
+    }
+    else
+    {
+        picture = picture.scaledToWidth(max_picture_size);
+    }
+}
+
+void WorkPiece::deletePicture()
+{
+    picture = QPixmap(); //set to empty(NULL) pixmap
 }
 
 QVector<Step*> WorkPiece::getSteps()
@@ -309,15 +333,15 @@ void WorkPiece::savePieceToDatabase()
 
     if (id == 0)
     {
-        query.prepare("INSERT INTO pieces (status, name, customer, type, date, comment) "
-                      "VALUES (:stat, :name, :cust, :type, :date, :comm)");
+        query.prepare("INSERT INTO pieces (status, name, customer, type, date, comment, picture) "
+                      "VALUES (:stat, :name, :cust, :type, :date, :comm, :pic)");
     }
     else
     {
         QString q = "UPDATE pieces "
-                    "SET (status, name, customer, type, date, comment)"
+                    "SET (status, name, customer, type, date, comment, picture)"
                     " = "
-                    "(:stat, :name, :cust, :type, :date, :comm) "
+                    "(:stat, :name, :cust, :type, :date, :comm, :pic) "
                     "WHERE piece_id=";
         q.append(QString::number(id));
         query.prepare(q);
@@ -329,6 +353,20 @@ void WorkPiece::savePieceToDatabase()
     query.bindValue(":type", type);
     query.bindValue(":date", date.toString(Qt::ISODate));
     query.bindValue(":comm", comment);
+    if (picture.isNull())
+    {
+        query.bindValue(":pic", QVariant());
+    }
+    else
+    {
+        //transform picture to bytearray:
+        QByteArray bytes;
+        QBuffer buffer(&bytes);
+        buffer.open(QIODevice::WriteOnly);
+        picture.save(&buffer, "JPG"); // writes pixmap into bytes in JPG format
+        //bind bytearray to query:
+        query.bindValue(":pic", bytes);
+    }
 
     if (!query.exec())
     {
@@ -340,6 +378,7 @@ void WorkPiece::savePieceToDatabase()
     if (id == 0)
     {
         id = query.lastInsertId().toInt();
+        //for debugging:
         printf("Inserted new row into pieces table: %s (%d)\n", name.toStdString().c_str(), id);
     }
 

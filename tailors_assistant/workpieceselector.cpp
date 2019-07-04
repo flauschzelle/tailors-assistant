@@ -83,6 +83,7 @@ void WorkPieceSelector::setSelectionMode(PieceStatusMode mode)
     proxy_model->setFilterKeyColumn(-1); //filter from all columns
     ui->tableView->setModel(proxy_model);
     ui->tableView->resizeColumnsToContents();
+    ui->tableView->resizeRowsToContents();
 
     //sort the table view by date, descending:
     if (mode == record)
@@ -133,7 +134,30 @@ void WorkPieceSelector::generateWorkPieceLists()
         nextpiece->setType(query.value(4).toString());
         nextpiece->setDate(query.value(5).toDate());
         nextpiece->setComment(query.value(6).toString());
-        //nextpiece->setPicture(NULL); //TODO: implement this later!
+        //get and convert picture:
+        if (!query.value(7).toByteArray().isNull())
+        {
+            QPixmap pic;
+            bool ok = pic.loadFromData(query.value(7).toByteArray());
+            if (!ok)
+            {
+                QString name = nextpiece->getName();
+                name += " (" + QString::number(nextpiece->getId()) + "): ";
+                printf("%serror while loading picture from database.\n", name.toStdString().c_str());
+            }
+            else
+            {
+                nextpiece->setPicture(pic);
+
+                //for debugging:
+                /*
+                QString name = nextpiece->getName();
+                name += " (" + QString::number(nextpiece->getId()) + "): ";
+                printf("%ssuccessfully loaded picture from database.\n", name.toStdString().c_str());
+                */
+            }
+        }
+        //sort by status:
         if (query.value(1).toInt() == record)
         {
             nextpiece->setStatus(record);
