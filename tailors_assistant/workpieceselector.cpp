@@ -135,10 +135,11 @@ void WorkPieceSelector::generateWorkPieceLists()
         nextpiece->setDate(query.value(5).toDate());
         nextpiece->setComment(query.value(6).toString());
         //get and convert picture:
-        if (!query.value(7).toByteArray().isNull())
+        QByteArray pic_bytes = query.value(7).toByteArray();
+        if (!pic_bytes.isNull())
         {
             QPixmap pic;
-            bool ok = pic.loadFromData(query.value(7).toByteArray());
+            bool ok = pic.loadFromData(pic_bytes);
             if (!ok)
             {
                 QString name = nextpiece->getName();
@@ -148,6 +149,10 @@ void WorkPieceSelector::generateWorkPieceLists()
             else
             {
                 nextpiece->setPicture(pic);
+                nextpiece->setPicture_bytes(pic_bytes);
+                //for debugging:
+                //printf("opened JPG image of size %d bytes\n", pic_bytes.size());
+
 
                 //for debugging:
                 /*

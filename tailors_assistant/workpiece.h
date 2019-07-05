@@ -50,6 +50,8 @@ public:
 
     QString getExportableText();
 
+    void setPicture_bytes(const QByteArray& value);
+
 signals:
     void stepOrderChanged();
 
@@ -75,6 +77,8 @@ private:
     QString comment;
     QDate date;
     QPixmap picture;
+    QByteArray picture_bytes;
+
     int max_picture_size;
 
     QVector<Step*> steps;

@@ -214,6 +214,10 @@ void MainWindow::openPieceSelector()
     {
         delete selector;
     }
+    if (currentPiece != NULL)
+    {
+        currentPiece->savePieceToDatabase();
+    }
     selector = new WorkPieceSelector(this);
     selector->setSelectionMode(record);
     selector->setConversionMode(none);
@@ -228,6 +232,10 @@ void MainWindow::openOfferSelector()
     if (selector != NULL)
     {
         delete selector;
+    }
+    if (currentPiece != NULL)
+    {
+        currentPiece->savePieceToDatabase();
     }
     selector = new WorkPieceSelector(this);
     selector->setSelectionMode(offer);

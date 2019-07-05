@@ -128,11 +128,23 @@ void WorkPiece::setPictureFromFile(QString filename)
     {
         picture = picture.scaledToWidth(max_picture_size);
     }
+
+    QBuffer buffer(&picture_bytes);
+    buffer.open(QIODevice::WriteOnly);
+    // writes pixmap into bytes in JPG format with 85% quality:
+    picture.save(&buffer, "JPG", 85);
+    buffer.close();
 }
 
 void WorkPiece::deletePicture()
 {
     picture = QPixmap(); //set to empty(NULL) pixmap
+    picture_bytes = QByteArray(); //set to empty bytearray
+}
+
+void WorkPiece::setPicture_bytes(const QByteArray& value)
+{
+    picture_bytes = value;
 }
 
 QVector<Step*> WorkPiece::getSteps()
@@ -357,19 +369,13 @@ void WorkPiece::savePieceToDatabase()
     query.bindValue(":type", type);
     query.bindValue(":date", date.toString(Qt::ISODate));
     query.bindValue(":comm", comment);
-    if (picture.isNull())
+    if (picture_bytes.isNull())
     {
         query.bindValue(":pic", QVariant());
     }
     else
     {
-        //transform picture to bytearray:
-        QByteArray bytes;
-        QBuffer buffer(&bytes);
-        buffer.open(QIODevice::WriteOnly);
-        picture.save(&buffer, "JPG"); // writes pixmap into bytes in JPG format
-        //bind bytearray to query:
-        query.bindValue(":pic", bytes);
+        query.bindValue(":pic", picture_bytes);
     }
 
     if (!query.exec())
