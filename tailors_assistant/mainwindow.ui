@@ -713,6 +713,9 @@
                    <bold>false</bold>
                   </font>
                  </property>
+                 <property name="maximum">
+                  <number>999</number>
+                 </property>
                 </widget>
                </item>
               </layout>

@@ -110,7 +110,7 @@ MainWindow::~MainWindow()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     //save current piece
-    if (currentPiece != NULL)
+    if (currentPiece != NULL && !currentPiece->isEmpty())
     {
         currentPiece->savePieceToDatabase();
     }
@@ -180,15 +180,19 @@ void MainWindow::newPieceFromOffer()
 {
     //setInputMode(record);
     if (selector != NULL)
-        {
-            delete selector;
-        }
-        selector = new WorkPieceSelector(this);
-        selector->setSelectionMode(offer);
-        selector->setConversionMode(offer_to_record);
-        selector->open();
-        QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
-        QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
+    {
+        delete selector;
+    }
+    if (currentPiece != NULL && !currentPiece->isEmpty())
+    {
+        currentPiece->savePieceToDatabase();
+    }
+    selector = new WorkPieceSelector(this);
+    selector->setSelectionMode(offer);
+    selector->setConversionMode(offer_to_record);
+    selector->open();
+    QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
+    QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
 }
 
 //slot function to create a new offer from the data of an existing piece
@@ -196,15 +200,19 @@ void MainWindow::newOfferFromPiece()
 {
     //setInputMode(offer);
     if (selector != NULL)
-        {
-            delete selector;
-        }
-        selector = new WorkPieceSelector(this);
-        selector->setSelectionMode(record);
-        selector->setConversionMode(record_copy_to_offer);
-        selector->open();
-        QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
-        QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
+    {
+        delete selector;
+    }
+    if (currentPiece != NULL && !currentPiece->isEmpty())
+    {
+        currentPiece->savePieceToDatabase();
+    }
+    selector = new WorkPieceSelector(this);
+    selector->setSelectionMode(record);
+    selector->setConversionMode(record_copy_to_offer);
+    selector->open();
+    QObject::connect(selector, &QDialog::accepted, this, &MainWindow::getWorkpieceFromSelector);
+    QObject::connect(selector, &QDialog::rejected, this, &MainWindow::cleanUpSelector);
 }
 
 //slot function for a selection view to open an existing piece:
@@ -214,7 +222,7 @@ void MainWindow::openPieceSelector()
     {
         delete selector;
     }
-    if (currentPiece != NULL)
+    if (currentPiece != NULL && !currentPiece->isEmpty())
     {
         currentPiece->savePieceToDatabase();
     }
@@ -233,7 +241,7 @@ void MainWindow::openOfferSelector()
     {
         delete selector;
     }
-    if (currentPiece != NULL)
+    if (currentPiece != NULL && !currentPiece->isEmpty())
     {
         currentPiece->savePieceToDatabase();
     }
@@ -254,6 +262,7 @@ void MainWindow::getWorkpieceFromSelector()
         currentPiece->savePieceToDatabase();
     }
     setCurrentPiece(selector->getSelectedPiece());
+    activateStepEdits();
     delete selector;
     selector = NULL; //re-initialize selector to null pointer
     //for debugging:
@@ -666,7 +675,11 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
     }
     else
     {
-        currentPiece->loadStepsFromDatabase();
+        if (currentPiece != NULL && !currentPiece->isEmpty())
+        {
+            currentPiece->loadStepsFromDatabase();
+        }
+
         setInputMode(currentPiece->getStatus());
         //activate ui elements:
         ui->pieceDataBox->setEnabled(true);
