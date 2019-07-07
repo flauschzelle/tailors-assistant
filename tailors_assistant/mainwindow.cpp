@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     steps_model->setDataSource(empty_step_list);
 
     ui->dataTableView->setModel(steps_model);
+    ui->dataTableView->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
     ui->dataTableView->resizeColumnsToContents();
 
     //default visibility:
@@ -999,6 +1000,21 @@ void MainWindow::disconnectStepDataInputs(Step * step)
 
     QObject::disconnect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
 
+    //table resizing:
+    QObject::disconnect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->stepNameComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->seamTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated), ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->seamTypeComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->materialComboBox, QOverload<const QString &>::of(&QComboBox::activated), ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->materialComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->detailComboBox, QOverload<const QString &>::of(&QComboBox::activated),ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->detailComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->seamTypeCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->materialCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->detailCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->pieceTypeCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::disconnect(ui->stepCommentLineEdit, &QLineEdit::textEdited, ui->dataTableView, &QTableView::resizeColumnsToContents);
+
     //data changes
     QObject::disconnect(step, &Step::stepDataChanged, steps_model, &StepTableModel::stepDataChanged);
     QObject::disconnect(step, &Step::stepDataChanged, this, &MainWindow::setDisplayedSums);
@@ -1046,6 +1062,22 @@ void MainWindow::connectStepDataInputs(Step * step)
     QObject::connect(ui->pieceTypeCheckBox, &QCheckBox::toggled, step, &Step::setFilterPieceType);
 
     QObject::connect(ui->stepCommentLineEdit, &QLineEdit::textEdited, step, &Step::setComment);
+
+    //table resizing:
+    QObject::connect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->stepNameComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->seamTypeComboBox, QOverload<const QString &>::of(&QComboBox::activated), ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->seamTypeComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->materialComboBox, QOverload<const QString &>::of(&QComboBox::activated), ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->materialComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->detailComboBox, QOverload<const QString &>::of(&QComboBox::activated),ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->detailComboBox, &QComboBox::editTextChanged, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->seamTypeCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->materialCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->detailCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->pieceTypeCheckBox, &QCheckBox::toggled, ui->dataTableView, &QTableView::resizeColumnsToContents);
+    QObject::connect(ui->stepCommentLineEdit, &QLineEdit::textEdited, ui->dataTableView, &QTableView::resizeColumnsToContents);
+
 
     //recalculate statistics when step data is input
     QObject::connect(ui->stepNameComboBox, QOverload<const QString &>::of(&QComboBox::activated), this, &MainWindow::calculateStepStatistics);
