@@ -75,6 +75,7 @@ public slots:
     void cleanUpExportSelector();
     void getExportPathFromSelector();
 
+    void openWebsite();
     void openAboutDialog();
 
     void tryToDeletePicture();

@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <QFile>
 #include <QCloseEvent>
+#include <QDesktopServices>
 
 // constructor
 MainWindow::MainWindow(QWidget *parent) :
@@ -73,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QObject::connect(ui->actionDatenbank_Einstellungen, &QAction::triggered, this, &MainWindow::openDatabaseSettings);
 
+    QObject::connect(ui->actionOnline_Dokumentation, &QAction::triggered, this, &MainWindow::openWebsite);
     QObject::connect(ui->action_ber_Tailor_s_Assistant, &QAction::triggered, this, &MainWindow::openAboutDialog);
 
     QObject::connect(ui->addPictureToolButton, &QToolButton::clicked, this, &MainWindow::openPictureUploadDialog);
@@ -327,6 +329,11 @@ void MainWindow::getExportPathFromSelector()
     }
     delete export_textfile_dialog;
     export_textfile_dialog = NULL; //re-initialize selector to null pointer
+}
+
+void MainWindow::openWebsite()
+{
+    QDesktopServices::openUrl(QUrl("http://metakiki.net/tailors-assistant/"));
 }
 
 //slot

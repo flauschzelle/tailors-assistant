@@ -941,7 +941,7 @@
     <property name="title">
      <string>Hi&amp;lfe</string>
     </property>
-    <addaction name="actionOnline_Hilfe"/>
+    <addaction name="actionOnline_Dokumentation"/>
     <addaction name="action_ber_Tailor_s_Assistant"/>
    </widget>
    <addaction name="menuWerkst_ck"/>
@@ -997,12 +997,12 @@
     <string>Angebot aus &amp;Werkstück importieren</string>
    </property>
   </action>
-  <action name="actionOnline_Hilfe">
+  <action name="actionOnline_Dokumentation">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;Online-Hilfe</string>
+    <string>&amp;Online-Dokumentation</string>
    </property>
   </action>
   <action name="action_ber_Tailor_s_Assistant">
