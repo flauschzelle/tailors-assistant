@@ -675,6 +675,7 @@ void MainWindow::setCurrentPiece(WorkPiece * piece)
     if (currentPiece != NULL)
     {
         disconnectPieceDataInputs();
+        ui->dataTableView->selectionModel()->clearSelection();
     }
     if (piece != currentPiece)
     {
