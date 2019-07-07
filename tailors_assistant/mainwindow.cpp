@@ -851,7 +851,7 @@ void MainWindow::fillPieceDataComboBoxes()
     ui->customerComboBox->clear();
     QStringList customers;
     QSqlQuery query;
-    query.exec("SELECT DISTINCT customer FROM pieces ORDER BY customer");
+    query.exec("SELECT DISTINCT customer FROM pieces ORDER BY customer COLLATE NOCASE");
     while (query.next())
     {
         customers.append(query.value(0).toString());
@@ -861,7 +861,7 @@ void MainWindow::fillPieceDataComboBoxes()
 
     ui->pieceTypeComboBox->clear();
     QStringList types;
-    query.exec("SELECT DISTINCT type FROM pieces ORDER BY type");
+    query.exec("SELECT DISTINCT type FROM pieces ORDER BY type COLLATE NOCASE");
     while (query.next())
     {
         types.append(query.value(0).toString());
@@ -929,7 +929,7 @@ void MainWindow::fillStepDataComboBoxes()
     ui->stepNameComboBox->clear();
     QStringList stepNames;
     QSqlQuery query;
-    query.exec("SELECT DISTINCT name FROM steps ORDER BY name");
+    query.exec("SELECT DISTINCT name FROM steps ORDER BY name COLLATE NOCASE");
     while (query.next())
     {
         stepNames.append(query.value(0).toString());
@@ -938,7 +938,7 @@ void MainWindow::fillStepDataComboBoxes()
 
     ui->seamTypeComboBox->clear();
     QStringList seamTypes;
-    query.exec("SELECT DISTINCT seam_type FROM steps ORDER BY seam_type");
+    query.exec("SELECT DISTINCT seam_type FROM steps ORDER BY seam_type COLLATE NOCASE");
     while (query.next())
     {
         seamTypes.append(query.value(0).toString());
@@ -947,7 +947,7 @@ void MainWindow::fillStepDataComboBoxes()
 
     ui->materialComboBox->clear();
     QStringList materials;
-    query.exec("SELECT DISTINCT material FROM steps ORDER BY material");
+    query.exec("SELECT DISTINCT material FROM steps ORDER BY material COLLATE NOCASE");
     while (query.next())
     {
         materials.append(query.value(0).toString());
@@ -956,7 +956,7 @@ void MainWindow::fillStepDataComboBoxes()
 
     ui->detailComboBox->clear();
     QStringList details;
-    query.exec("SELECT DISTINCT detail FROM steps ORDER BY detail");
+    query.exec("SELECT DISTINCT detail FROM steps ORDER BY detail COLLATE NOCASE");
     while (query.next())
     {
         details.append(query.value(0).toString());
