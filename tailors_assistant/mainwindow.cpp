@@ -265,7 +265,10 @@ void MainWindow::getWorkpieceFromSelector()
         currentPiece->savePieceToDatabase();
     }
     setCurrentPiece(selector->getSelectedPiece());
-    activateStepEdits();
+    if (!currentPiece->getSteps().isEmpty())
+    {
+            activateStepEdits();
+    }
     delete selector;
     selector = NULL; //re-initialize selector to null pointer
     //for debugging:
@@ -521,6 +524,11 @@ void MainWindow::deleteCurrentStep()
 //slot that is called when a step is selected from the table view
 void MainWindow::stepSelected(const QItemSelection &selected, const QItemSelection &)
 {
+    if (selected.indexes().isEmpty())
+    {
+        printf("error: empty selection\n");
+        return;
+    }
     //disconnect inputs from previous step
     disconnectStepDataInputs(currentPiece->getSteps().at(stepIndex));
     //update StepIndex from selection
