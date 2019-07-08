@@ -464,7 +464,7 @@ QString WorkPiece::getExportableText()
 
     text += customer + " – " + name + " – " + date.toString("dd.MM.yyyy") + "\n";
     text += "Typ: " + type + "\n";
-    text += "Anmerkungen: \n" + comment + "\n\n";
+    text += "Anmerkungen: " + comment + "\n\n";
 
     //datastructure for counting how wide the colums should be:
     int maxletters[12];
