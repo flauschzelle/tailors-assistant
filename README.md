@@ -6,6 +6,8 @@ It provides a database with an input form to record data about the tailor's prev
 
 The UI is currently in German only, but documentation is in English.
 
+![Tailor's Assistant logo with text](tailors_assistant/tailors-assistant-black-outlines-with-text-as-path.svg)
+
 **Tailor's Assistant** was developed with Qt Creator on Ubuntu 18.04.
 It should be able to run on most current Linux systems, and you need to have **Qt5** installed to be able to run it.
 
