@@ -73,7 +73,7 @@
      <item>
       <widget class="QLabel" name="infoLabel">
        <property name="text">
-        <string>Entwickelt von Kirstin Rohwer. Mehr Info auf der Website ...</string>
+        <string>Entwickelt von Kirstin Rohwer. Mehr Info auf der Website:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
