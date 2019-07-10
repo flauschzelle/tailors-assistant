@@ -541,6 +541,7 @@ void MainWindow::deleteCurrentStep()
     calculateStepStatistics();
     fillStepDataUIElements(currentPiece->getSteps().at(stepIndex));
     connectStepDataInputs(currentPiece->getSteps().at(stepIndex));
+    setDisplayedSums(); //so the deleted step is also removed from the sums
 }
 
 //slot that is called when a step is selected from the table view
