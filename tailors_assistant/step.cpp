@@ -27,7 +27,7 @@ Step::Step(QObject *parent) : QObject(parent)
     id = 0;
     name = "";
     minutesAll = 0;
-    count = 0;
+    count = 1;
     seamType = "";
     material = "";
     detail = "";
