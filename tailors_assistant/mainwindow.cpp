@@ -441,7 +441,7 @@ void MainWindow::openDatabaseSettings()
                         "(wenn die Datei noch nicht existiert, wird sie automatisch erstellt):";
     db_settings_dialog->setLabelText(labeltext);
     db_settings_dialog->setFileDialogTitle("Datenbank-Datei auswählen");
-    db_settings_dialog->setMode(saveFile);
+    db_settings_dialog->setMode(setDatabase);
     db_settings_dialog->setFileDialogDirPath(databaseDirPath);
     db_settings_dialog->setFileDialogTypes("Database Files (*.db)");
     db_settings_dialog->open();

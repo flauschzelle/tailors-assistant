@@ -87,6 +87,10 @@ void FilePathSettingsDialog::setPathFromFilesystem()
 {
     QString filePath;
     //open a file dialog to get the file path:
+    if (mode == setDatabase)
+    {
+        filePath = QFileDialog::getSaveFileName(this, fileDialogTitle, fileDialogDirPath, fileDialogTypes, nullptr, QFileDialog::DontConfirmOverwrite);
+    }
     if (mode == saveFile)
     {
         filePath = QFileDialog::getSaveFileName(this, fileDialogTitle, fileDialogDirPath, fileDialogTypes);

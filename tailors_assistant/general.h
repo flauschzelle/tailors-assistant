@@ -25,6 +25,6 @@
 
 enum PieceStatusMode { record, offer };
 enum PieceConversionMode { none, record_copy_to_offer, offer_to_record };
-enum FileDialogMode { openFile, saveFile, openPicture };
+enum FileDialogMode { setDatabase, openFile, saveFile, openPicture };
 
 #endif // GENERAL_H
